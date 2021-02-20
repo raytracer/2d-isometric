@@ -1,0 +1,14 @@
+{
+  "name": "2d-isometric",
+  "version": "1.0.0",
+  "description": "A playground for trying out 2d isometric ideas.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Christoph Müller",
+  "license": "MIT",
+  "dependencies": {
+    "esbuild": "^0.8.49"
+  }
+}
