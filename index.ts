@@ -58,8 +58,8 @@ const start = async () => {
     }
 
 
-    const width = 3;
-    const height = 7;
+    const width = 12;
+    const height = 12;
     const board = await generateBoard(height, width);
 
     const drawBoard = () => {
