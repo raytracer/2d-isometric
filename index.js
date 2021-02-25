@@ -34,6 +34,7 @@
   };
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
+    const defaultHeight = images[0].height;
     const generateBoard = async (height2, width2) => {
       const result = [];
       for (let x = 0; x < width2; x++) {
@@ -41,7 +42,15 @@
           const choose = getRandomInt(images.length);
           const direction = getRandomInt(4);
           const img = images[choose];
-          result.push({x, y, img, direction});
+          result.push({
+            x,
+            y,
+            z: 0,
+            draw: (ctx) => {
+              const s = img.width / 8 - 4;
+              ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s * (width2 - x + y) + offsetX) * scale, ((x + y) * (s / 2) + (defaultHeight - img.height) + offsetY) * scale, (img.width / 4 - 4) * scale, (img.height - 4) * scale);
+            }
+          });
         }
       }
       return result;
@@ -50,16 +59,12 @@
     const height = 12;
     const board = await generateBoard(height, width);
     const drawBoard = () => {
-      const defaultHeight = images[0].height;
       const canvas = document.getElementById("main-canvas");
       if (canvas) {
         const ctx = canvas.getContext("2d");
         if (ctx) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          board.forEach((d) => {
-            const s = d.img.width / 8 - 4;
-            ctx.drawImage(d.img, 2 + d.img.width / 4 * d.direction, 2, d.img.width / 4 - 4, d.img.height - 4, (s * (width - d.x + d.y) + offsetX) * scale, ((d.x + d.y) * (s / 2) + (defaultHeight - d.img.height) + offsetY) * scale, (d.img.width / 4 - 4) * scale, (d.img.height - 4) * scale);
-          });
+          board.forEach((d) => d.draw(ctx));
         }
       }
       requestAnimationFrame(drawBoard);
