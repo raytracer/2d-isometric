@@ -30,11 +30,10 @@ document.onmousemove = (event) => {
 document.onkeypress = (event) => {
     switch (event.key) {
         case "w":
-            console.log("i was here");
-            scale += 0.05
+            scale = Math.min(scale + 0.25, 1.5);
             break;
         case "s":
-            scale -= 0.05
+            scale = Math.max(0.5, scale - 0.25);
             break;
     }
 };
