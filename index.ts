@@ -17,15 +17,16 @@ let scale = 1.0;
 let offsetX = 0;
 let offsetY = 0;
 let pressed = false;
+const divider = window.navigator.platform.toLowerCase().indexOf("mac") === -1 ? window.devicePixelRatio : 1;
 
 document.onmousedown = () => pressed = true;
 document.onmouseup = () => pressed = false;
 document.onmousemove = (event) => {
     if (pressed) {
-        offsetX += event.movementX / window.devicePixelRatio / scale;
-        offsetY += event.movementY / window.devicePixelRatio / scale;
-    }
-};
+        offsetX += event.movementX / divider / scale;
+        offsetY += event.movementY / divider / scale;
+    };
+}
 
 document.onkeypress = (event) => {
     switch (event.key) {
