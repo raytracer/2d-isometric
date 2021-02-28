@@ -84,24 +84,24 @@ const start = async () => {
         moveX = 0;
         moveY = 0;
 
-        const speed = 30;
-        const edge = 50;
+        const speed = 10;
+        const edge = 30;
 
         if (canvas) {
-            if (event.screenX < edge) {
+            if (event.clientX < edge) {
                 moveX = speed;
             }
 
-            if (event.screenY < edge * 2) {
+            if (event.clientY < edge) {
                 console.log("hi");
                 moveY = speed;
             }
 
-            if (event.screenX > (canvas as HTMLCanvasElement).width - edge) {
+            if (event.clientX > (canvas as HTMLCanvasElement).width - edge) {
                 moveX = -speed;
             }
 
-            if (event.screenY > (canvas as HTMLCanvasElement).height - edge) {
+            if (event.clientY > (canvas as HTMLCanvasElement).height - edge) {
                 moveY = -speed;
             }
         }
