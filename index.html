@@ -11,11 +11,30 @@
             margin: 0;
             padding: 0;
         }
+
+        .top {
+            background-color: lightgrey;
+            height: 20px;
+            width: 100%;
+        }
+
+        .main {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .right {
+            width: 200px;
+        }
     </style>
 </head>
 
 <body>
-    <canvas id="main-canvas" width="1500" height="1000"></canvas>
+    <div class="top">top</div>
+    <div class="main">
+        <canvas id="main-canvas" width="1500" height="1000"></canvas>
+        <div class="right"><button id="house">Build House</button></div>
+    </div>
     <script src="index.js"></script>
 </body>
 

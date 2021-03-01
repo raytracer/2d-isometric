@@ -18,8 +18,10 @@
   if (canvas) {
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-    canvas.width = vw;
-    canvas.height = vh;
+    const interfaceRight = 200;
+    const interfaceTop = 20;
+    canvas.width = vw - interfaceRight;
+    canvas.height = vh - interfaceTop;
   }
   var cursorX = 0;
   var cursorY = 0;
@@ -54,32 +56,37 @@
         }
       });
     };
-    document.onmouseup = () => {
-      buildHouse();
-    };
-    document.onmousemove = (event) => {
-      moveX = 0;
-      moveY = 0;
-      const speed = 10;
-      const edge = 30;
-      if (canvas) {
-        if (event.clientX < edge) {
+    if (canvas) {
+      canvas.onmouseup = () => {
+        buildHouse();
+      };
+      canvas.addEventListener("mousemove", (event) => {
+        moveX = 0;
+        moveY = 0;
+        const speed = 10;
+        const edge = 30;
+        if (event.offsetX < edge) {
           moveX = speed;
         }
-        if (event.clientY < edge) {
-          console.log("hi");
+        if (event.offsetY < edge) {
           moveY = speed;
         }
-        if (event.clientX > canvas.width - edge) {
+        if (event.offsetX > canvas.width - edge) {
           moveX = -speed;
         }
-        if (event.clientY > canvas.height - edge) {
+        if (event.offsetY > canvas.height - edge) {
           moveY = -speed;
         }
-      }
+      });
+      canvas.addEventListener("mouseleave", (event) => {
+        moveX = 0;
+        moveY = 0;
+      });
+    }
+    document.addEventListener("mousemove", (event) => {
       cursorX = event.offsetX;
       cursorY = event.offsetY;
-    };
+    });
     document.onkeypress = (event) => {
       switch (event.key) {
         case "w":
