@@ -5,12 +5,13 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "./node_modules/esbuild/bin/esbuild index.ts --bundle --sourcemap --watch --outfile=index.js",
-    "build": "./node_modules/esbuild/bin/esbuild index.ts --bundle --sourcemap --outfile=index.js"
+    "watch": "./node_modules/esbuild/bin/esbuild index.tsx --jsx-factory=h --jsx-fragment=Fragment --bundle --sourcemap --watch --outfile=index.js",
+    "build": "./node_modules/esbuild/bin/esbuild index.tsx --jsx-factory=h --jsx-fragment=Fragment --bundle --sourcemap --outfile=index.js"
   },
   "author": "Christoph Müller",
   "license": "MIT",
   "dependencies": {
-    "esbuild": "^0.8.49"
+    "esbuild": "^0.8.49",
+    "preact": "^10.5.12"
   }
 }
