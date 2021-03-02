@@ -225,7 +225,7 @@ const start = async () => {
             <Fragment>
                 <div className="top">top</div>
                 <div className="main">
-                    <canvas onMouseUp={() => buildHouse()} ref={canvasRef} id="main-canvas" width="1500" height="1000"></canvas>
+                    <canvas onMouseUp={() => { if (gameState.buildMode) buildHouse(); }} ref={canvasRef} id="main-canvas" width="1500" height="1000"></canvas>
                     <div className="right"><button onClick={() => { gameState.buildMode = !gameState.buildMode; }}>Build House</button></div>
                 </div>
             </Fragment>
