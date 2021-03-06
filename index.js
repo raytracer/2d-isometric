@@ -505,12 +505,15 @@
       let gameState = {buildMode: false};
       y2(() => {
         const canvas = canvasRef.current;
+        let lastTime = null;
         if (canvas) {
           setUpCanvas(canvas);
           let animationFrameId;
-          const drawBoard = () => {
-            offsetX += moveX / divider / scale;
-            offsetY += moveY / divider / scale;
+          const drawBoard = (time) => {
+            const timeFactor = lastTime === null ? 0 : (time - lastTime) / 10;
+            lastTime = time;
+            offsetX += timeFactor * moveX / divider / scale;
+            offsetY += timeFactor * moveY / divider / scale;
             const ctx = canvas.getContext("2d");
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -521,7 +524,7 @@
             }
             animationFrameId = requestAnimationFrame(drawBoard);
           };
-          drawBoard();
+          requestAnimationFrame(drawBoard);
           return () => {
             window.cancelAnimationFrame(animationFrameId);
           };
@@ -532,7 +535,10 @@
       }, "top"), /* @__PURE__ */ a("div", {
         className: "main"
       }, /* @__PURE__ */ a("canvas", {
-        onMouseUp: () => buildHouse(),
+        onMouseUp: () => {
+          if (gameState.buildMode)
+            buildHouse();
+        },
         ref: canvasRef,
         id: "main-canvas",
         width: "1500",

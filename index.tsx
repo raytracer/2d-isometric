@@ -195,12 +195,15 @@ const start = async () => {
 
         useEffect(() => {
             const canvas = canvasRef.current;
+            let lastTime: number | null = null;
             if (canvas) {
                 setUpCanvas(canvas);
                 let animationFrameId: number;
-                const drawBoard = () => {
-                    offsetX += moveX / divider / scale;
-                    offsetY += moveY / divider / scale;
+                const drawBoard = (time: number) => {
+                    const timeFactor = lastTime === null ? 0 : (time - lastTime) / 10;
+                    lastTime = time;
+                    offsetX += timeFactor * moveX / divider / scale;
+                    offsetY += timeFactor * moveY / divider / scale;
 
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
@@ -213,7 +216,7 @@ const start = async () => {
                     animationFrameId = requestAnimationFrame(drawBoard);
                 };
 
-                drawBoard();
+                requestAnimationFrame(drawBoard)
 
                 return () => {
                     window.cancelAnimationFrame(animationFrameId);
