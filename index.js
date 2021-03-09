@@ -369,7 +369,7 @@
     });
   }
 
-  // index.tsx
+  // util.ts
   var loadImage = (url) => {
     return new Promise((r3) => {
       let i3 = new Image();
@@ -380,14 +380,132 @@
   var getRandomInt = (max) => {
     return Math.floor(Math.random() * Math.floor(max));
   };
-  var scale = 1;
-  var offsetX = 0;
-  var offsetY = 0;
+
+  // board.ts
+  var generateBoard = (height, width, ss, defaultHeight, images) => {
+    const result = [];
+    for (let x3 = 0; x3 < width; x3++) {
+      for (let y3 = 0; y3 < height; y3++) {
+        const choose = getRandomInt(images.length);
+        const direction = getRandomInt(4);
+        const img = images[choose];
+        result.push({
+          x: x3,
+          y: y3,
+          z: 0,
+          draw: (ctx) => {
+            const s3 = img.width / 8 - 4;
+            ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s3 * (width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
+          }
+        });
+      }
+    }
+    return result;
+  };
+  var getNextCursorAdjacentTile = (board, ss, s3) => {
+    let ox = (-board.width * s3 - ss.offsetX - s3) / 2;
+    let oy = (s3 + ss.offsetY) / 2;
+    let x3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) + (-ss.cursorX / (ss.scale * 2) - ox) / s3);
+    let y3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) - (-ss.cursorX / (ss.scale * 2) - ox) / s3);
+    x3 = Math.min(board.width - 1, Math.max(0, x3));
+    y3 = Math.min(board.height - 1, Math.max(0, y3));
+    return board.drawables.filter((d3) => d3.x === x3 && d3.y === y3)[0];
+  };
+
+  // building.ts
+  var getHouseOverlay = (board, ss, s3, defaultHeight, house) => {
+    const tile = getNextCursorAdjacentTile(board, ss, s3);
+    const x3 = tile.x;
+    const y3 = tile.y;
+    return {
+      x: x3,
+      y: y3,
+      z: 0,
+      draw: (ctx) => {
+        ctx.globalAlpha = 0.85;
+        ctx.drawImage(house, 2 + house.width / 4 * 3, 2, house.width / 4 - 4, house.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - house.height) + ss.offsetY) * ss.scale, (house.width / 4 - 4) * ss.scale, (house.height - 4) * ss.scale);
+        ctx.globalAlpha = 1;
+      }
+    };
+  };
+  var buildHouse = (board, ss, s3, defaultHeight, house) => {
+    const tile = getNextCursorAdjacentTile(board, ss, s3);
+    const x3 = tile.x;
+    const y3 = tile.y;
+    board.drawables.splice(board.drawables.indexOf(tile), 1);
+    board.drawables = board.drawables.filter((d3) => d3.x !== x3 || d3.y !== y3);
+    board.drawables.push({
+      x: x3,
+      y: y3,
+      z: 0,
+      draw: (ctx) => {
+        ctx.drawImage(house, 2 + house.width / 4 * 3, 2, house.width / 4 - 4, house.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - house.height) + ss.offsetY) * ss.scale, (house.width / 4 - 4) * ss.scale, (house.height - 4) * ss.scale);
+      }
+    });
+  };
+
+  // gamestate.ts
+  function updateState(state, timeDelta) {
+    return state;
+  }
+
+  // screen.ts
+  var setUpCanvas = (canvas, ss) => {
+    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+    const interfaceRight = 200;
+    const interfaceTop = 20;
+    canvas.width = vw - interfaceRight;
+    canvas.height = vh - interfaceTop;
+    canvas.addEventListener("mousemove", (event) => {
+      ss.moveX = 0;
+      ss.moveY = 0;
+      const speed = 10;
+      const edge = 30;
+      if (event.offsetX < edge) {
+        ss.moveX = speed;
+      }
+      if (event.offsetY < edge) {
+        ss.moveY = speed;
+      }
+      if (event.offsetX > canvas.width - edge) {
+        ss.moveX = -speed;
+      }
+      if (event.offsetY > canvas.height - edge) {
+        ss.moveY = -speed;
+      }
+    });
+    canvas.addEventListener("mouseleave", (event) => {
+      ss.moveX = 0;
+      ss.moveY = 0;
+    });
+    canvas.addEventListener("mousemove", (event) => {
+      ss.cursorX = event.offsetX;
+      ss.cursorY = event.offsetY;
+    });
+    canvas.onkeypress = (event) => {
+      switch (event.key) {
+        case "w":
+          ss.scale = Math.min(ss.scale + 0.25, 1.5);
+          break;
+        case "s":
+          ss.scale = Math.max(0.5, ss.scale - 0.25);
+          break;
+      }
+    };
+  };
+
+  // index.tsx
   var divider = window.navigator.platform.toLowerCase().indexOf("mac") === -1 ? window.devicePixelRatio : 1;
-  var cursorX = 0;
-  var cursorY = 0;
-  var moveX = 0;
-  var moveY = 0;
+  var screenState = {
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+    cursorX: 0,
+    cursorY: 0,
+    moveX: 0,
+    moveY: 0
+  };
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const house = await loadImage("./house.png");
@@ -395,111 +513,11 @@
     const defaultHeight = images[0].height;
     const width = 12;
     const height = 12;
-    const generateBoard = (height2, width2) => {
-      const result = [];
-      for (let x3 = 0; x3 < width2; x3++) {
-        for (let y3 = 0; y3 < height2; y3++) {
-          const choose = getRandomInt(images.length);
-          const direction = getRandomInt(4);
-          const img = images[choose];
-          result.push({
-            x: x3,
-            y: y3,
-            z: 0,
-            draw: (ctx) => {
-              const s4 = img.width / 8 - 4;
-              ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s4 * (width2 - x3 + y3) + offsetX) * scale, ((x3 + y3) * (s4 / 2) + (defaultHeight - img.height) + offsetY) * scale, (img.width / 4 - 4) * scale, (img.height - 4) * scale);
-            }
-          });
-        }
-      }
-      return result;
+    let board = {
+      width,
+      height,
+      drawables: await generateBoard(height, width, screenState, defaultHeight, images)
     };
-    let board = await generateBoard(height, width);
-    const getNextCursorAdjacentTile = () => {
-      let ox = (-width * s3 - offsetX - s3) / 2;
-      let oy = (s3 + offsetY) / 2;
-      let x3 = Math.floor((cursorY / (2 * scale) - oy) / (s3 / 2) + (-cursorX / (scale * 2) - ox) / s3);
-      let y3 = Math.floor((cursorY / (2 * scale) - oy) / (s3 / 2) - (-cursorX / (scale * 2) - ox) / s3);
-      x3 = Math.min(width - 1, Math.max(0, x3));
-      y3 = Math.min(height - 1, Math.max(0, y3));
-      return board.filter((d3) => d3.x === x3 && d3.y === y3)[0];
-    };
-    const buildHouse = () => {
-      const tile = getNextCursorAdjacentTile();
-      const x3 = tile.x;
-      const y3 = tile.y;
-      board.splice(board.indexOf(tile), 1);
-      board = board.filter((d3) => d3.x !== x3 || d3.y !== y3);
-      board.push({
-        x: x3,
-        y: y3,
-        z: 0,
-        draw: (ctx) => {
-          ctx.drawImage(house, 2 + house.width / 4 * 3, 2, house.width / 4 - 4, house.height - 4, (s3 * (width - x3 + y3) + offsetX) * scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - house.height) + offsetY) * scale, (house.width / 4 - 4) * scale, (house.height - 4) * scale);
-        }
-      });
-    };
-    const setUpCanvas = (canvas) => {
-      const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-      const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-      const interfaceRight = 200;
-      const interfaceTop = 20;
-      canvas.width = vw - interfaceRight;
-      canvas.height = vh - interfaceTop;
-      canvas.addEventListener("mousemove", (event) => {
-        moveX = 0;
-        moveY = 0;
-        const speed = 10;
-        const edge = 30;
-        if (event.offsetX < edge) {
-          moveX = speed;
-        }
-        if (event.offsetY < edge) {
-          moveY = speed;
-        }
-        if (event.offsetX > canvas.width - edge) {
-          moveX = -speed;
-        }
-        if (event.offsetY > canvas.height - edge) {
-          moveY = -speed;
-        }
-      });
-      canvas.addEventListener("mouseleave", (event) => {
-        moveX = 0;
-        moveY = 0;
-      });
-      canvas.addEventListener("mousemove", (event) => {
-        cursorX = event.offsetX;
-        cursorY = event.offsetY;
-      });
-      canvas.onkeypress = (event) => {
-        switch (event.key) {
-          case "w":
-            scale = Math.min(scale + 0.25, 1.5);
-            break;
-          case "s":
-            scale = Math.max(0.5, scale - 0.25);
-            break;
-        }
-      };
-    };
-    const getHouseOverlay = (width2, height2) => {
-      const tile = getNextCursorAdjacentTile();
-      const x3 = tile.x;
-      const y3 = tile.y;
-      return {
-        x: x3,
-        y: y3,
-        z: 0,
-        draw: (ctx) => {
-          ctx.globalAlpha = 0.85;
-          ctx.drawImage(house, 2 + house.width / 4 * 3, 2, house.width / 4 - 4, house.height - 4, (s3 * (width2 - x3 + y3) + offsetX) * scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - house.height) + offsetY) * scale, (house.width / 4 - 4) * scale, (house.height - 4) * scale);
-          ctx.globalAlpha = 1;
-        }
-      };
-    };
-    ;
     function Isometric(props) {
       const canvasRef = s2(null);
       let gameState = {buildMode: false};
@@ -507,19 +525,20 @@
         const canvas = canvasRef.current;
         let lastTime = null;
         if (canvas) {
-          setUpCanvas(canvas);
+          setUpCanvas(canvas, screenState);
           let animationFrameId;
           const drawBoard = (time) => {
             const timeFactor = lastTime === null ? 0 : (time - lastTime) / 10;
             lastTime = time;
-            offsetX += timeFactor * moveX / divider / scale;
-            offsetY += timeFactor * moveY / divider / scale;
+            screenState.offsetX += timeFactor * screenState.moveX / divider / screenState.scale;
+            screenState.offsetY += timeFactor * screenState.moveY / divider / screenState.scale;
+            gameState = updateState(gameState, time - lastTime);
             const ctx = canvas.getContext("2d");
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              const allDrawables = [...board];
+              const allDrawables = [...board.drawables];
               if (gameState.buildMode)
-                allDrawables.push(getHouseOverlay(width, height));
+                allDrawables.push(getHouseOverlay(board, screenState, s3, defaultHeight, house));
               allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => d3.draw(ctx));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
@@ -537,7 +556,7 @@
       }, /* @__PURE__ */ a("canvas", {
         onMouseUp: () => {
           if (gameState.buildMode)
-            buildHouse();
+            buildHouse(board, screenState, s3, defaultHeight, house);
         },
         ref: canvasRef,
         id: "main-canvas",
