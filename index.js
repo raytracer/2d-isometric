@@ -413,7 +413,17 @@
   };
 
   // building.ts
-  var getHouseOverlay = (board, ss, s3, defaultHeight, house) => {
+  var BuildingType;
+  (function(BuildingType2) {
+    BuildingType2[BuildingType2["house"] = 0] = "house";
+  })(BuildingType || (BuildingType = {}));
+  var loadBuildingImages = async () => {
+    const house = await loadImage("./house.png");
+    return {
+      [0]: house
+    };
+  };
+  var getBuildingOverlay = (board, ss, s3, defaultHeight, image, type) => {
     const tile = getNextCursorAdjacentTile(board, ss, s3);
     const x3 = tile.x;
     const y3 = tile.y;
@@ -423,23 +433,22 @@
       z: 0,
       draw: (ctx) => {
         ctx.globalAlpha = 0.85;
-        ctx.drawImage(house, 2 + house.width / 4 * 3, 2, house.width / 4 - 4, house.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - house.height) + ss.offsetY) * ss.scale, (house.width / 4 - 4) * ss.scale, (house.height - 4) * ss.scale);
+        ctx.drawImage(image, 2 + image.width / 4 * 3, 2, image.width / 4 - 4, image.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - image.height) + ss.offsetY) * ss.scale, (image.width / 4 - 4) * ss.scale, (image.height - 4) * ss.scale);
         ctx.globalAlpha = 1;
       }
     };
   };
-  var buildHouse = (board, ss, s3, defaultHeight, house) => {
+  var build = (board, ss, s3, defaultHeight, image, type) => {
     const tile = getNextCursorAdjacentTile(board, ss, s3);
     const x3 = tile.x;
     const y3 = tile.y;
-    board.drawables.splice(board.drawables.indexOf(tile), 1);
     board.drawables = board.drawables.filter((d3) => d3.x !== x3 || d3.y !== y3);
     board.drawables.push({
       x: x3,
       y: y3,
       z: 0,
       draw: (ctx) => {
-        ctx.drawImage(house, 2 + house.width / 4 * 3, 2, house.width / 4 - 4, house.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - house.height) + ss.offsetY) * ss.scale, (house.width / 4 - 4) * ss.scale, (house.height - 4) * ss.scale);
+        ctx.drawImage(image, 2 + image.width / 4 * 3, 2, image.width / 4 - 4, image.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - image.height) + ss.offsetY) * ss.scale, (image.width / 4 - 4) * ss.scale, (image.height - 4) * ss.scale);
       }
     });
   };
@@ -508,8 +517,8 @@
   };
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
-    const house = await loadImage("./house.png");
-    const s3 = house.width / 8 - 4;
+    const buildingImages = await loadBuildingImages();
+    const s3 = buildingImages[BuildingType.house].width / 8 - 4;
     const defaultHeight = images[0].height;
     const width = 12;
     const height = 12;
@@ -538,7 +547,7 @@
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               const allDrawables = [...board.drawables];
               if (gameState.buildMode)
-                allDrawables.push(getHouseOverlay(board, screenState, s3, defaultHeight, house));
+                allDrawables.push(getBuildingOverlay(board, screenState, s3, defaultHeight, buildingImages[BuildingType.house], BuildingType.house));
               allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => d3.draw(ctx));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
@@ -556,7 +565,7 @@
       }, /* @__PURE__ */ a("canvas", {
         onMouseUp: () => {
           if (gameState.buildMode)
-            buildHouse(board, screenState, s3, defaultHeight, house);
+            build(board, screenState, s3, defaultHeight, buildingImages[BuildingType.house], BuildingType.house);
         },
         ref: canvasRef,
         id: "main-canvas",

@@ -1,7 +1,7 @@
 import { Fragment, h, render } from "preact";
 import { useRef, useEffect } from "preact/hooks";
 import { Board, generateBoard } from "./board";
-import { buildHouse, getHouseOverlay } from "./building";
+import { build, BuildingType, getBuildingOverlay, loadBuildingImages } from "./building";
 import { GameState, updateState } from "./gamestate";
 import { ScreenState, setUpCanvas } from "./screen";
 import { loadImage } from "./util";
@@ -27,8 +27,8 @@ const screenState: ScreenState = {
 
 const start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
-    const house = await loadImage("./house.png");
-    const s = (house.width / 8) - 4;
+    const buildingImages = await loadBuildingImages();
+    const s = (buildingImages[BuildingType.house].width / 8) - 4;
     const defaultHeight = images[0].height;
     const width = 12;
     const height = 12;
@@ -62,7 +62,7 @@ const start = async () => {
                     if (ctx) {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const allDrawables = [...board.drawables];
-                        if (gameState.buildMode) allDrawables.push(getHouseOverlay(board, screenState, s, defaultHeight, house));
+                        if (gameState.buildMode) allDrawables.push(getBuildingOverlay(board, screenState, s, defaultHeight, buildingImages[BuildingType.house], BuildingType.house));
                         allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => d.draw(ctx));
                     }
 
@@ -81,7 +81,7 @@ const start = async () => {
             <Fragment>
                 <div className="top">top</div>
                 <div className="main">
-                    <canvas onMouseUp={() => { if (gameState.buildMode) buildHouse(board, screenState, s, defaultHeight, house); }} ref={canvasRef} id="main-canvas" width="1500" height="1000"></canvas>
+                    <canvas onMouseUp={() => { if (gameState.buildMode) build(board, screenState, s, defaultHeight, buildingImages[BuildingType.house], BuildingType.house); }} ref={canvasRef} id="main-canvas" width="1500" height="1000"></canvas>
                     <div className="right"><button onClick={() => { gameState.buildMode = !gameState.buildMode; }}>Build House</button></div>
                 </div>
             </Fragment>
