@@ -8,7 +8,7 @@ export interface Board {
     height: number
 }
 
-export const generateBoard = (height: number, width: number, ss: ScreenState, defaultHeight: number, images: Array<HTMLImageElement>): Array<Drawable> => {
+export const generateBoard = (height: number, width: number, images: Array<HTMLImageElement>): Array<Drawable> => {
     const result: Array<Drawable> = [];
 
     for (let x = 0; x < width; x++) {

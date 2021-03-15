@@ -39,7 +39,7 @@ const start = async () => {
     let board: Board = {
         width: width,
         height: height,
-        drawables: await generateBoard(height, width, screenState, defaultHeight, images)
+        drawables: generateBoard(height, width, images)
     }
 
     function Isometric(props: any) {
