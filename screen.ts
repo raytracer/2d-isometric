@@ -1,4 +1,5 @@
 import { Board } from "./board";
+import { BuildingType } from "./building";
 
 export interface ScreenState {
     scale: number;
@@ -8,6 +9,7 @@ export interface ScreenState {
     cursorY: number;
     moveX: number;
     moveY: number;
+    buildMode: null | BuildingType;
 }
 
 export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
@@ -52,16 +54,18 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
         ss.cursorY = event.offsetY;
     });
 
-    canvas.onkeypress = (event) => {
+    document.addEventListener("keyup", event => {
+        console.log(ss.scale);
         switch (event.key) {
             case "w":
                 ss.scale = Math.min(ss.scale + 0.25, 1.5);
+                console.log(ss.scale);
                 break;
             case "s":
                 ss.scale = Math.max(0.5, ss.scale - 0.25);
                 break;
         }
-    };
+    });
 };
 
 export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, defaultHeight: number, img: HTMLImageElement, direction: number, alpha: number) => {

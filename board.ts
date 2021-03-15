@@ -25,7 +25,7 @@ export const generateBoard = (height: number, width: number, images: Array<HTMLI
     return result;
 }
 
-export const getNextCursorAdjacentTile = (board: Board, ss: ScreenState, s: number): Drawable => {
+export const getNextCursorAdjacentTile = (board: Board, ss: ScreenState, s: number) => {
     let ox = (-board.width * s - ss.offsetX - s) / 2;
     let oy = (s + ss.offsetY) / 2;
     let x = Math.floor(((ss.cursorY / (2 * ss.scale) - oy) / (s / 2)) + ((-ss.cursorX / (ss.scale * 2) - ox) / s));
@@ -34,5 +34,8 @@ export const getNextCursorAdjacentTile = (board: Board, ss: ScreenState, s: numb
     x = Math.min(board.width - 1, Math.max(0, x));
     y = Math.min(board.height - 1, Math.max(0, y));
 
-    return board.drawables.filter(d => d.x === x && d.y === y)[0];
+    return {
+        x: x,
+        y: y
+    };
 };

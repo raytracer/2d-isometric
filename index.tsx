@@ -1,7 +1,7 @@
 import { Fragment, h, render } from "preact";
 import { useRef, useEffect } from "preact/hooks";
 import { Board, generateBoard } from "./board";
-import { build, BuildingType, getBuildingOverlay, loadBuildingImages } from "./building";
+import { build, BuildingType, getBuildingOverlay, getDrawableForBuilding, loadBuildingImages } from "./building";
 import { GameState, updateState } from "./gamestate";
 import { draw, ScreenState, setUpCanvas } from "./screen";
 import { loadImage } from "./util";
@@ -24,7 +24,8 @@ const screenState: ScreenState = {
     cursorX: 0,
     cursorY: 0,
     moveX: 0,
-    moveY: 0
+    moveY: 0,
+    buildMode: null
 }
 
 const start = async () => {
@@ -44,7 +45,7 @@ const start = async () => {
 
     function Isometric(props: any) {
         const canvasRef = useRef<HTMLCanvasElement>(null);
-        let gameState: GameState = { buildMode: false };
+        let gameState: GameState = { buildings: [] };
 
         useEffect(() => {
             const canvas = canvasRef.current;
@@ -63,8 +64,10 @@ const start = async () => {
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        const allDrawables = [...board.drawables];
-                        if (gameState.buildMode) allDrawables.push(getBuildingOverlay(board, screenState, s, defaultHeight, buildingImages[BuildingType.house], BuildingType.house));
+                        const buildingDrawables = gameState.buildings.map(b => getDrawableForBuilding(b, buildingImages[b.type]));
+                        const tileDrawables = [...board.drawables].filter(td => buildingDrawables.find(bd => bd.x === td.x && bd.y === td.y) === undefined);
+                        const allDrawables = [...tileDrawables, ...buildingDrawables];
+                        if (screenState.buildMode !== null) allDrawables.push(getBuildingOverlay(board, screenState, s, buildingImages[BuildingType.house]));
                         allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => draw(ctx, d.x, d.y, board, screenState, defaultHeight, d.image, d.direction, d.alpha));
                     }
 
@@ -83,8 +86,8 @@ const start = async () => {
             <Fragment>
                 <div className="top">top</div>
                 <div className="main">
-                    <canvas onMouseUp={() => { if (gameState.buildMode) build(board, screenState, s, defaultHeight, buildingImages[BuildingType.house], BuildingType.house); }} ref={canvasRef} id="main-canvas" width="1500" height="1000"></canvas>
-                    <div className="right"><button onClick={() => { gameState.buildMode = !gameState.buildMode; }}>Build House</button></div>
+                    <canvas onMouseUp={() => { if (screenState.buildMode !== null) build(gameState, board, screenState, s, screenState.buildMode); }} ref={canvasRef} id="main-canvas" width="1500" height="1000"></canvas>
+                    <div className="right"><button onClick={() => { screenState.buildMode = BuildingType.house; }}>Build House</button></div>
                 </div>
             </Fragment>
         );

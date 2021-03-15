@@ -382,7 +382,7 @@
   };
 
   // board.ts
-  var generateBoard = (height, width, ss, defaultHeight, images) => {
+  var generateBoard = (height, width, images) => {
     const result = [];
     for (let x3 = 0; x3 < width; x3++) {
       for (let y3 = 0; y3 < height; y3++) {
@@ -408,7 +408,10 @@
     let y3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) - (-ss.cursorX / (ss.scale * 2) - ox) / s3);
     x3 = Math.min(board.width - 1, Math.max(0, x3));
     y3 = Math.min(board.height - 1, Math.max(0, y3));
-    return board.drawables.filter((d3) => d3.x === x3 && d3.y === y3)[0];
+    return {
+      x: x3,
+      y: y3
+    };
   };
 
   // building.ts
@@ -416,13 +419,23 @@
   (function(BuildingType2) {
     BuildingType2[BuildingType2["house"] = 0] = "house";
   })(BuildingType || (BuildingType = {}));
+  var getDrawableForBuilding = (building, image) => {
+    return {
+      x: building.x,
+      y: building.y,
+      z: 0,
+      image,
+      direction: 3,
+      alpha: 1
+    };
+  };
   var loadBuildingImages = async () => {
     const house = await loadImage("./house.png");
     return {
       [0]: house
     };
   };
-  var getBuildingOverlay = (board, ss, s3, defaultHeight, image, type) => {
+  var getBuildingOverlay = (board, ss, s3, image) => {
     const tile = getNextCursorAdjacentTile(board, ss, s3);
     const x3 = tile.x;
     const y3 = tile.y;
@@ -435,19 +448,17 @@
       alpha: 0.8
     };
   };
-  var build = (board, ss, s3, defaultHeight, image, type) => {
+  var build = (gameState, board, ss, s3, type) => {
     const tile = getNextCursorAdjacentTile(board, ss, s3);
     const x3 = tile.x;
     const y3 = tile.y;
-    board.drawables = board.drawables.filter((d3) => d3.x !== x3 || d3.y !== y3);
-    board.drawables.push({
-      x: x3,
-      y: y3,
-      z: 0,
-      image,
-      direction: 3,
-      alpha: 1
-    });
+    if (gameState.buildings.filter((b3) => b3.x === x3 && b3.y === y3).length === 0) {
+      gameState.buildings.push({
+        x: x3,
+        y: y3,
+        type
+      });
+    }
   };
 
   // gamestate.ts
@@ -489,16 +500,18 @@
       ss.cursorX = event.offsetX;
       ss.cursorY = event.offsetY;
     });
-    canvas.onkeypress = (event) => {
+    document.addEventListener("keyup", (event) => {
+      console.log(ss.scale);
       switch (event.key) {
         case "w":
           ss.scale = Math.min(ss.scale + 0.25, 1.5);
+          console.log(ss.scale);
           break;
         case "s":
           ss.scale = Math.max(0.5, ss.scale - 0.25);
           break;
       }
-    };
+    });
   };
   var draw = (ctx, x3, y3, board, ss, defaultHeight, img, direction, alpha) => {
     const s3 = img.width / 8 - 4;
@@ -516,7 +529,8 @@
     cursorX: 0,
     cursorY: 0,
     moveX: 0,
-    moveY: 0
+    moveY: 0,
+    buildMode: null
   };
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
@@ -528,11 +542,11 @@
     let board = {
       width,
       height,
-      drawables: await generateBoard(height, width, screenState, defaultHeight, images)
+      drawables: generateBoard(height, width, images)
     };
     function Isometric(props) {
       const canvasRef = s2(null);
-      let gameState = {buildMode: false};
+      let gameState = {buildings: []};
       y2(() => {
         const canvas = canvasRef.current;
         let lastTime = null;
@@ -548,9 +562,11 @@
             const ctx = canvas.getContext("2d");
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              const allDrawables = [...board.drawables];
-              if (gameState.buildMode)
-                allDrawables.push(getBuildingOverlay(board, screenState, s3, defaultHeight, buildingImages[BuildingType.house], BuildingType.house));
+              const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type]));
+              const tileDrawables = [...board.drawables].filter((td) => buildingDrawables.find((bd) => bd.x === td.x && bd.y === td.y) === void 0);
+              const allDrawables = [...tileDrawables, ...buildingDrawables];
+              if (screenState.buildMode !== null)
+                allDrawables.push(getBuildingOverlay(board, screenState, s3, buildingImages[BuildingType.house]));
               allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, defaultHeight, d3.image, d3.direction, d3.alpha));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
@@ -567,8 +583,8 @@
         className: "main"
       }, /* @__PURE__ */ a("canvas", {
         onMouseUp: () => {
-          if (gameState.buildMode)
-            build(board, screenState, s3, defaultHeight, buildingImages[BuildingType.house], BuildingType.house);
+          if (screenState.buildMode !== null)
+            build(gameState, board, screenState, s3, screenState.buildMode);
         },
         ref: canvasRef,
         id: "main-canvas",
@@ -578,7 +594,7 @@
         className: "right"
       }, /* @__PURE__ */ a("button", {
         onClick: () => {
-          gameState.buildMode = !gameState.buildMode;
+          screenState.buildMode = BuildingType.house;
         }
       }, "Build House"))));
     }
