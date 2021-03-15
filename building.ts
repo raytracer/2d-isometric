@@ -42,20 +42,9 @@ export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, def
         x: x,
         y: y,
         z: 0,
-        draw: (ctx: CanvasRenderingContext2D) => {
-            ctx.globalAlpha = 0.85;
-            ctx.drawImage(
-                image,
-                2 + (image.width / 4) * 3,
-                2,
-                image.width / 4 - 4,
-                image.height - 4,
-                (s * (board.width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) + (defaultHeight - image.height) + ss.offsetY) * ss.scale,
-                (image.width / 4 - 4) * ss.scale,
-                (image.height - 4) * ss.scale
-            );
-            ctx.globalAlpha = 1.0;
-        }
+        image: image,
+        direction: 3,
+        alpha: 0.8
     };
 }
 
@@ -65,21 +54,13 @@ export const build = (board: Board, ss: ScreenState, s: number, defaultHeight: n
     const y = tile.y;
 
     board.drawables = board.drawables.filter(d => d.x !== x || d.y !== y);
-    board.drawables.push({
-        x: x,
-        y: y,
-        z: 0,
-        draw: (ctx: CanvasRenderingContext2D) => {
-            ctx.drawImage(
-                image,
-                2 + (image.width / 4) * 3,
-                2,
-                image.width / 4 - 4,
-                image.height - 4,
-                (s * (board.width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) + (defaultHeight - image.height) + ss.offsetY) * ss.scale,
-                (image.width / 4 - 4) * ss.scale,
-                (image.height - 4) * ss.scale
-            );
-        }
-    });
+    board.drawables.push(
+        {
+            x: x,
+            y: y,
+            z: 0,
+            image: image,
+            direction: 3,
+            alpha: 1.0
+        });
 };

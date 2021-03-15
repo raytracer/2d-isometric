@@ -393,10 +393,9 @@
           x: x3,
           y: y3,
           z: 0,
-          draw: (ctx) => {
-            const s3 = img.width / 8 - 4;
-            ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s3 * (width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
-          }
+          image: img,
+          direction,
+          alpha: 1
         });
       }
     }
@@ -431,11 +430,9 @@
       x: x3,
       y: y3,
       z: 0,
-      draw: (ctx) => {
-        ctx.globalAlpha = 0.85;
-        ctx.drawImage(image, 2 + image.width / 4 * 3, 2, image.width / 4 - 4, image.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - image.height) + ss.offsetY) * ss.scale, (image.width / 4 - 4) * ss.scale, (image.height - 4) * ss.scale);
-        ctx.globalAlpha = 1;
-      }
+      image,
+      direction: 3,
+      alpha: 0.8
     };
   };
   var build = (board, ss, s3, defaultHeight, image, type) => {
@@ -447,9 +444,9 @@
       x: x3,
       y: y3,
       z: 0,
-      draw: (ctx) => {
-        ctx.drawImage(image, 2 + image.width / 4 * 3, 2, image.width / 4 - 4, image.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - image.height) + ss.offsetY) * ss.scale, (image.width / 4 - 4) * ss.scale, (image.height - 4) * ss.scale);
-      }
+      image,
+      direction: 3,
+      alpha: 1
     });
   };
 
@@ -503,6 +500,12 @@
       }
     };
   };
+  var draw = (ctx, x3, y3, board, ss, defaultHeight, img, direction, alpha) => {
+    const s3 = img.width / 8 - 4;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
+    ctx.globalAlpha = 1;
+  };
 
   // index.tsx
   var divider = window.navigator.platform.toLowerCase().indexOf("mac") === -1 ? window.devicePixelRatio : 1;
@@ -548,7 +551,7 @@
               const allDrawables = [...board.drawables];
               if (gameState.buildMode)
                 allDrawables.push(getBuildingOverlay(board, screenState, s3, defaultHeight, buildingImages[BuildingType.house], BuildingType.house));
-              allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => d3.draw(ctx));
+              allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, defaultHeight, d3.image, d3.direction, d3.alpha));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
           };

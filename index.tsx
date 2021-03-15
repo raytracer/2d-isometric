@@ -3,14 +3,16 @@ import { useRef, useEffect } from "preact/hooks";
 import { Board, generateBoard } from "./board";
 import { build, BuildingType, getBuildingOverlay, loadBuildingImages } from "./building";
 import { GameState, updateState } from "./gamestate";
-import { ScreenState, setUpCanvas } from "./screen";
+import { draw, ScreenState, setUpCanvas } from "./screen";
 import { loadImage } from "./util";
 
 export interface Drawable {
     x: number;
     y: number;
     z: number;
-    draw: (ctx: CanvasRenderingContext2D) => void;
+    image: HTMLImageElement;
+    direction: number;
+    alpha: number;
 }
 
 export const divider = window.navigator.platform.toLowerCase().indexOf("mac") === -1 ? window.devicePixelRatio : 1;
@@ -63,7 +65,7 @@ const start = async () => {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const allDrawables = [...board.drawables];
                         if (gameState.buildMode) allDrawables.push(getBuildingOverlay(board, screenState, s, defaultHeight, buildingImages[BuildingType.house], BuildingType.house));
-                        allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => d.draw(ctx));
+                        allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => draw(ctx, d.x, d.y, board, screenState, defaultHeight, d.image, d.direction, d.alpha));
                     }
 
                     animationFrameId = requestAnimationFrame(drawBoard);

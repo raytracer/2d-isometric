@@ -1,3 +1,5 @@
+import { Board } from "./board";
+
 export interface ScreenState {
     scale: number;
     offsetX: number;
@@ -61,3 +63,19 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
         }
     };
 };
+
+export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, defaultHeight: number, img: HTMLImageElement, direction: number, alpha: number) => {
+    const s = (img.width / 8) - 4;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(
+        img,
+        2 + (img.width / 4) * direction,
+        2,
+        img.width / 4 - 4,
+        img.height - 4,
+        (s * (board.width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale,
+        (img.width / 4 - 4) * ss.scale,
+        (img.height - 4) * ss.scale
+    );
+    ctx.globalAlpha = 1.0;
+}

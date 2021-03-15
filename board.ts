@@ -8,7 +8,7 @@ export interface Board {
     height: number
 }
 
-export const generateBoard = (height: number, width: number, ss: ScreenState, defaultHeight: number, images: Array<HTMLImageElement>) => {
+export const generateBoard = (height: number, width: number, ss: ScreenState, defaultHeight: number, images: Array<HTMLImageElement>): Array<Drawable> => {
     const result: Array<Drawable> = [];
 
     for (let x = 0; x < width; x++) {
@@ -17,19 +17,7 @@ export const generateBoard = (height: number, width: number, ss: ScreenState, de
             const direction = getRandomInt(4)
             const img = images[choose];
             result.push({
-                x: x, y: y, z: 0, draw: (ctx: CanvasRenderingContext2D) => {
-                    const s = (img.width / 8) - 4;
-                    ctx.drawImage(
-                        img,
-                        2 + (img.width / 4) * direction,
-                        2,
-                        img.width / 4 - 4,
-                        img.height - 4,
-                        (s * (width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale,
-                        (img.width / 4 - 4) * ss.scale,
-                        (img.height - 4) * ss.scale
-                    );
-                }
+                x: x, y: y, z: 0, image: img, direction: direction, alpha: 1.0
             });
         }
     }
