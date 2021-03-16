@@ -17,6 +17,8 @@ export interface Dimension {
 
 export enum BuildingType { house };
 
+export const buildingTypes = [BuildingType.house];
+
 const getDimension = (building: BuildingType): Dimension => {
     switch (building) {
         case BuildingType.house:
@@ -38,11 +40,18 @@ export const getDrawableForBuilding = (building: Building, image: HTMLImageEleme
     };
 };
 
-export const loadBuildingImages = async () => {
-    const house = await loadImage("./house.png");
-    return {
-        [BuildingType.house]: house
-    };
+export const buildingImagePaths = {
+    [BuildingType.house]: "./house.png"
+};
+
+export const loadBuildingImages = async (): Promise<{ [key in BuildingType]: HTMLImageElement }> => {
+    let result: any = {};
+
+    for (const [key, value] of Object.entries(buildingImagePaths)) {
+        result[key] = await loadImage(value);
+    }
+
+    return result;
 }
 
 export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, image: HTMLImageElement): Drawable => {

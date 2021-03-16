@@ -419,6 +419,7 @@
   (function(BuildingType2) {
     BuildingType2[BuildingType2["house"] = 0] = "house";
   })(BuildingType || (BuildingType = {}));
+  var buildingTypes = [0];
   var getDrawableForBuilding = (building, image) => {
     return {
       x: building.x,
@@ -429,11 +430,15 @@
       alpha: 1
     };
   };
+  var buildingImagePaths = {
+    [0]: "./house.png"
+  };
   var loadBuildingImages = async () => {
-    const house = await loadImage("./house.png");
-    return {
-      [0]: house
-    };
+    let result = {};
+    for (const [key, value] of Object.entries(buildingImagePaths)) {
+      result[key] = await loadImage(value);
+    }
+    return result;
   };
   var getBuildingOverlay = (board, ss, s3, image) => {
     const tile = getNextCursorAdjacentTile(board, ss, s3);
@@ -566,7 +571,7 @@
               const tileDrawables = [...board.drawables].filter((td) => buildingDrawables.find((bd) => bd.x === td.x && bd.y === td.y) === void 0);
               const allDrawables = [...tileDrawables, ...buildingDrawables];
               if (screenState.buildMode !== null)
-                allDrawables.push(getBuildingOverlay(board, screenState, s3, buildingImages[BuildingType.house]));
+                allDrawables.push(getBuildingOverlay(board, screenState, s3, buildingImages[screenState.buildMode]));
               allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, defaultHeight, d3.image, d3.direction, d3.alpha));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
@@ -577,6 +582,17 @@
           };
         }
       }, []);
+      const renderBuildingButtons = () => {
+        return buildingTypes.map((t3) => /* @__PURE__ */ a("div", {
+          className: "building"
+        }, /* @__PURE__ */ a("button", {
+          onClick: () => {
+            screenState.buildMode = t3;
+          }
+        }, /* @__PURE__ */ a("img", {
+          src: buildingImagePaths[t3]
+        }))));
+      };
       return /* @__PURE__ */ a(y, null, /* @__PURE__ */ a("div", {
         className: "top"
       }, "top"), /* @__PURE__ */ a("div", {
@@ -592,11 +608,7 @@
         height: "1000"
       }), /* @__PURE__ */ a("div", {
         className: "right"
-      }, /* @__PURE__ */ a("button", {
-        onClick: () => {
-          screenState.buildMode = BuildingType.house;
-        }
-      }, "Build House"))));
+      }, /* @__PURE__ */ a("h2", null, "Buildings"), renderBuildingButtons())));
     }
     N(/* @__PURE__ */ a(Isometric, null), document.body);
   };
