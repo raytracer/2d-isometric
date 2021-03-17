@@ -27,7 +27,7 @@ export const generateBoard = (height: number, width: number, images: Array<HTMLI
 
 export const getNextCursorAdjacentTile = (board: Board, ss: ScreenState, s: number) => {
     let ox = (-board.width * s - ss.offsetX - s) / 2;
-    let oy = (s + ss.offsetY) / 2;
+    let oy = (ss.offsetY - s) / 2;
     let x = Math.floor(((ss.cursorY / (2 * ss.scale) - oy) / (s / 2)) + ((-ss.cursorX / (ss.scale * 2) - ox) / s));
     let y = Math.floor(((ss.cursorY / (2 * ss.scale) - oy) / (s / 2)) - ((-ss.cursorX / (ss.scale * 2) - ox) / s));
 

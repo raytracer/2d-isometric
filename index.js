@@ -403,7 +403,7 @@
   };
   var getNextCursorAdjacentTile = (board, ss, s3) => {
     let ox = (-board.width * s3 - ss.offsetX - s3) / 2;
-    let oy = (s3 + ss.offsetY) / 2;
+    let oy = (ss.offsetY - s3) / 2;
     let x3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) + (-ss.cursorX / (ss.scale * 2) - ox) / s3);
     let y3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) - (-ss.cursorX / (ss.scale * 2) - ox) / s3);
     x3 = Math.min(board.width - 1, Math.max(0, x3));
@@ -416,8 +416,8 @@
 
   // building.ts
   var BuildingType;
-  (function(BuildingType2) {
-    BuildingType2[BuildingType2["house"] = 0] = "house";
+  (function(BuildingType3) {
+    BuildingType3[BuildingType3["house"] = 0] = "house";
   })(BuildingType || (BuildingType = {}));
   var buildingTypes = [0];
   var getDrawableForBuilding = (building, image) => {
@@ -506,7 +506,6 @@
       ss.cursorY = event.offsetY;
     });
     document.addEventListener("keyup", (event) => {
-      console.log(ss.scale);
       switch (event.key) {
         case "w":
           ss.scale = Math.min(ss.scale + 0.25, 1.5);
@@ -518,10 +517,10 @@
       }
     });
   };
-  var draw = (ctx, x3, y3, board, ss, defaultHeight, img, direction, alpha) => {
+  var draw = (ctx, x3, y3, board, ss, img, direction, alpha) => {
     const s3 = img.width / 8 - 4;
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
+    ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) - img.height + ss.offsetY) * ss.scale, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
     ctx.globalAlpha = 1;
   };
 
@@ -540,8 +539,7 @@
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const buildingImages = await loadBuildingImages();
-    const s3 = buildingImages[BuildingType.house].width / 8 - 4;
-    const defaultHeight = images[0].height;
+    const s3 = 78;
     const width = 12;
     const height = 12;
     let board = {
@@ -572,7 +570,7 @@
               const allDrawables = [...tileDrawables, ...buildingDrawables];
               if (screenState.buildMode !== null)
                 allDrawables.push(getBuildingOverlay(board, screenState, s3, buildingImages[screenState.buildMode]));
-              allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, defaultHeight, d3.image, d3.direction, d3.alpha));
+              allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, d3.image, d3.direction, d3.alpha));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
           };

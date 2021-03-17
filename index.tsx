@@ -31,8 +31,7 @@ const screenState: ScreenState = {
 const start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const buildingImages = await loadBuildingImages();
-    const s = (buildingImages[BuildingType.house].width / 8) - 4;
-    const defaultHeight = images[0].height;
+    const s = 78;
     const width = 12;
     const height = 12;
 
@@ -68,7 +67,7 @@ const start = async () => {
                         const tileDrawables = [...board.drawables].filter(td => buildingDrawables.find(bd => bd.x === td.x && bd.y === td.y) === undefined);
                         const allDrawables = [...tileDrawables, ...buildingDrawables];
                         if (screenState.buildMode !== null) allDrawables.push(getBuildingOverlay(board, screenState, s, buildingImages[screenState.buildMode]));
-                        allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => draw(ctx, d.x, d.y, board, screenState, defaultHeight, d.image, d.direction, d.alpha));
+                        allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => draw(ctx, d.x, d.y, board, screenState, d.image, d.direction, d.alpha));
                     }
 
                     animationFrameId = requestAnimationFrame(drawBoard);

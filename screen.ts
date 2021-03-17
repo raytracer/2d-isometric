@@ -55,7 +55,6 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
     });
 
     document.addEventListener("keyup", event => {
-        console.log(ss.scale);
         switch (event.key) {
             case "w":
                 ss.scale = Math.min(ss.scale + 0.25, 1.5);
@@ -68,7 +67,7 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
     });
 };
 
-export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, defaultHeight: number, img: HTMLImageElement, direction: number, alpha: number) => {
+export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, img: HTMLImageElement, direction: number, alpha: number) => {
     const s = (img.width / 8) - 4;
     ctx.globalAlpha = alpha;
     ctx.drawImage(
@@ -77,7 +76,7 @@ export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board:
         2,
         img.width / 4 - 4,
         img.height - 4,
-        (s * (board.width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) + (defaultHeight - img.height) + ss.offsetY) * ss.scale,
+        (s * (board.width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale,
         (img.width / 4 - 4) * ss.scale,
         (img.height - 4) * ss.scale
     );
