@@ -3,7 +3,7 @@ import { useRef, useEffect } from "preact/hooks";
 import { Board, generateBoard } from "./board";
 import { build, buildingImagePaths, BuildingType, buildingTypes, getBuildingOverlay, getDrawableForBuilding, loadBuildingImages } from "./building";
 import { GameState, updateState } from "./gamestate";
-import { draw, ScreenState, setUpCanvas } from "./screen";
+import { draw, s, ScreenState, setUpCanvas } from "./screen";
 import { loadImage } from "./util";
 
 export interface Drawable {
@@ -31,7 +31,6 @@ const screenState: ScreenState = {
 const start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const buildingImages = await loadBuildingImages();
-    const s = 78;
     const width = 12;
     const height = 12;
 

@@ -71,7 +71,7 @@
         n3.__d && (r3 = (t3 = (l2 = n3).__v).__e, (o3 = l2.__P) && (u3 = [], (i3 = c({}, t3)).__v = t3.__v + 1, T(o3, t3, i3, l2.__n, o3.ownerSVGElement !== void 0, t3.__h != null ? [r3] : null, u3, r3 == null ? d(t3) : r3, t3.__h), j(u3, t3), t3.__e != r3 && _(t3)));
       });
   }
-  function b(n2, l2, u3, i3, t3, r3, e3, c3, s3, a3) {
+  function b(n2, l2, u3, i3, t3, r3, e3, c3, s4, a3) {
     var h, p2, _2, k3, m3, b3, w, A2 = i3 && i3.__k || f, P2 = A2.length;
     for (u3.__k = [], h = 0; h < l2.length; h++)
       if ((k3 = u3.__k[h] = (k3 = l2[h]) == null || typeof k3 == "boolean" ? null : typeof k3 == "string" || typeof k3 == "number" ? v(null, k3, null, null, k3) : Array.isArray(k3) ? v(y, {children: k3}, null, null, null) : k3.__b > 0 ? v(k3.type, k3.props, k3.key, null, k3.__v) : k3) != null) {
@@ -85,7 +85,7 @@
             }
             _2 = null;
           }
-        T(n2, k3, _2 = _2 || o, t3, r3, e3, c3, s3, a3), m3 = k3.__e, (p2 = k3.ref) && _2.ref != p2 && (w || (w = []), _2.ref && w.push(_2.ref, null, k3), w.push(p2, k3.__c || m3, k3)), m3 != null ? (b3 == null && (b3 = m3), typeof k3.type == "function" && k3.__k != null && k3.__k === _2.__k ? k3.__d = s3 = g(k3, s3, n2) : s3 = x(n2, k3, _2, A2, m3, s3), a3 || u3.type !== "option" ? typeof u3.type == "function" && (u3.__d = s3) : n2.value = "") : s3 && _2.__e == s3 && s3.parentNode != n2 && (s3 = d(_2));
+        T(n2, k3, _2 = _2 || o, t3, r3, e3, c3, s4, a3), m3 = k3.__e, (p2 = k3.ref) && _2.ref != p2 && (w || (w = []), _2.ref && w.push(_2.ref, null, k3), w.push(p2, k3.__c || m3, k3)), m3 != null ? (b3 == null && (b3 = m3), typeof k3.type == "function" && k3.__k != null && k3.__k === _2.__k ? k3.__d = s4 = g(k3, s4, n2) : s4 = x(n2, k3, _2, A2, m3, s4), a3 || u3.type !== "option" ? typeof u3.type == "function" && (u3.__d = s4) : n2.value = "") : s4 && _2.__e == s4 && s4.parentNode != n2 && (s4 = d(_2));
       }
     for (u3.__e = b3, h = P2; h--; )
       A2[h] != null && (typeof u3.type == "function" && A2[h].__e != null && A2[h].__e == u3.__d && (u3.__d = d(i3, h + 1)), L(A2[h], A2[h]));
@@ -159,11 +159,11 @@
   function H(l2) {
     this.l[l2.type + true](n.event ? n.event(l2) : l2);
   }
-  function T(l2, u3, i3, t3, r3, o3, f3, e3, s3) {
+  function T(l2, u3, i3, t3, r3, o3, f3, e3, s4) {
     var a3, v3, h, d3, _2, k3, m3, g3, w, x3, A2, P2 = u3.type;
     if (u3.constructor !== void 0)
       return null;
-    i3.__h != null && (s3 = i3.__h, e3 = u3.__e = i3.__e, u3.__h = null, o3 = [e3]), (a3 = n.__b) && a3(u3);
+    i3.__h != null && (s4 = i3.__h, e3 = u3.__e = i3.__e, u3.__h = null, o3 = [e3]), (a3 = n.__b) && a3(u3);
     try {
       n:
         if (typeof P2 == "function") {
@@ -178,12 +178,12 @@
               v3.componentDidUpdate(d3, _2, k3);
             });
           }
-          v3.context = x3, v3.props = g3, v3.state = v3.__s, (a3 = n.__r) && a3(u3), v3.__d = false, v3.__v = u3, v3.__P = l2, a3 = v3.render(v3.props, v3.state, v3.context), v3.state = v3.__s, v3.getChildContext != null && (t3 = c(c({}, t3), v3.getChildContext())), h || v3.getSnapshotBeforeUpdate == null || (k3 = v3.getSnapshotBeforeUpdate(d3, _2)), A2 = a3 != null && a3.type === y && a3.key == null ? a3.props.children : a3, b(l2, Array.isArray(A2) ? A2 : [A2], u3, i3, t3, r3, o3, f3, e3, s3), v3.base = u3.__e, u3.__h = null, v3.__h.length && f3.push(v3), m3 && (v3.__E = v3.__ = null), v3.__e = false;
+          v3.context = x3, v3.props = g3, v3.state = v3.__s, (a3 = n.__r) && a3(u3), v3.__d = false, v3.__v = u3, v3.__P = l2, a3 = v3.render(v3.props, v3.state, v3.context), v3.state = v3.__s, v3.getChildContext != null && (t3 = c(c({}, t3), v3.getChildContext())), h || v3.getSnapshotBeforeUpdate == null || (k3 = v3.getSnapshotBeforeUpdate(d3, _2)), A2 = a3 != null && a3.type === y && a3.key == null ? a3.props.children : a3, b(l2, Array.isArray(A2) ? A2 : [A2], u3, i3, t3, r3, o3, f3, e3, s4), v3.base = u3.__e, u3.__h = null, v3.__h.length && f3.push(v3), m3 && (v3.__E = v3.__ = null), v3.__e = false;
         } else
-          o3 == null && u3.__v === i3.__v ? (u3.__k = i3.__k, u3.__e = i3.__e) : u3.__e = z(i3.__e, u3, i3, t3, r3, o3, f3, s3);
+          o3 == null && u3.__v === i3.__v ? (u3.__k = i3.__k, u3.__e = i3.__e) : u3.__e = z(i3.__e, u3, i3, t3, r3, o3, f3, s4);
       (a3 = n.diffed) && a3(u3);
     } catch (l3) {
-      u3.__v = null, (s3 || o3 != null) && (u3.__e = e3, u3.__h = !!s3, o3[o3.indexOf(e3)] = null), n.__e(l3, u3, i3);
+      u3.__v = null, (s4 || o3 != null) && (u3.__e = e3, u3.__h = !!s4, o3[o3.indexOf(e3)] = null), n.__e(l3, u3, i3);
     }
   }
   function j(l2, u3) {
@@ -401,11 +401,11 @@
     }
     return result;
   };
-  var getNextCursorAdjacentTile = (board, ss, s3) => {
-    let ox = (-board.width * s3 - ss.offsetX - s3) / 2;
-    let oy = (ss.offsetY - s3) / 2;
-    let x3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) + (-ss.cursorX / (ss.scale * 2) - ox) / s3);
-    let y3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s3 / 2) - (-ss.cursorX / (ss.scale * 2) - ox) / s3);
+  var getNextCursorAdjacentTile = (board, ss, s4) => {
+    let ox = (-board.width * s4 - ss.offsetX - s4) / 2;
+    let oy = (ss.offsetY - s4) / 2;
+    let x3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s4 / 2) + (-ss.cursorX / (ss.scale * 2) - ox) / s4);
+    let y3 = Math.floor((ss.cursorY / (2 * ss.scale) - oy) / (s4 / 2) - (-ss.cursorX / (ss.scale * 2) - ox) / s4);
     x3 = Math.min(board.width - 1, Math.max(0, x3));
     y3 = Math.min(board.height - 1, Math.max(0, y3));
     return {
@@ -440,8 +440,8 @@
     }
     return result;
   };
-  var getBuildingOverlay = (board, ss, s3, image) => {
-    const tile = getNextCursorAdjacentTile(board, ss, s3);
+  var getBuildingOverlay = (board, ss, s4, image) => {
+    const tile = getNextCursorAdjacentTile(board, ss, s4);
     const x3 = tile.x;
     const y3 = tile.y;
     return {
@@ -453,8 +453,8 @@
       alpha: 0.8
     };
   };
-  var build = (gameState, board, ss, s3, type) => {
-    const tile = getNextCursorAdjacentTile(board, ss, s3);
+  var build = (gameState, board, ss, s4, type) => {
+    const tile = getNextCursorAdjacentTile(board, ss, s4);
     const x3 = tile.x;
     const y3 = tile.y;
     if (gameState.buildings.filter((b3) => b3.x === x3 && b3.y === y3).length === 0) {
@@ -472,6 +472,7 @@
   }
 
   // screen.ts
+  var s3 = 78;
   var setUpCanvas = (canvas, ss) => {
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
@@ -518,9 +519,10 @@
     });
   };
   var draw = (ctx, x3, y3, board, ss, img, direction, alpha) => {
-    const s3 = img.width / 8 - 4;
+    const dx = (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale;
+    const dy = ((x3 + y3) * (s3 / 2) - img.height + ss.offsetY) * ss.scale;
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale, ((x3 + y3) * (s3 / 2) - img.height + ss.offsetY) * ss.scale, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
+    ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, dx, dy, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
     ctx.globalAlpha = 1;
   };
 
@@ -539,7 +541,6 @@
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const buildingImages = await loadBuildingImages();
-    const s3 = 78;
     const width = 12;
     const height = 12;
     let board = {

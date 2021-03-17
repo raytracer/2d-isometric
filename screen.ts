@@ -11,6 +11,7 @@ export interface ScreenState {
     moveY: number;
     buildMode: null | BuildingType;
 }
+export const s = 78;
 
 export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
@@ -68,7 +69,10 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
 };
 
 export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, img: HTMLImageElement, direction: number, alpha: number) => {
-    const s = (img.width / 8) - 4;
+    //const dx = alpha === 1.0 ? (s * (board.width - x + y) + ss.offsetX) * ss.scale : (s * (board.width - x + y) + ss.offsetX - 2) * ss.scale;
+    //const dy = alpha === 1.0 ? ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale : ((x + y) * (s / 2) - img.height + (s / 2) + ss.offsetY) * ss.scale;
+    const dx = (s * (board.width - x + y) + ss.offsetX) * ss.scale;
+    const dy = ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale;
     ctx.globalAlpha = alpha;
     ctx.drawImage(
         img,
@@ -76,7 +80,7 @@ export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board:
         2,
         img.width / 4 - 4,
         img.height - 4,
-        (s * (board.width - x + y) + ss.offsetX) * ss.scale, ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale,
+        dx, dy,
         (img.width / 4 - 4) * ss.scale,
         (img.height - 4) * ss.scale
     );
