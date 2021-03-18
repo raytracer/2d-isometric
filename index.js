@@ -418,8 +418,19 @@
   var BuildingType;
   (function(BuildingType3) {
     BuildingType3[BuildingType3["house"] = 0] = "house";
+    BuildingType3[BuildingType3["large_block"] = 1] = "large_block";
   })(BuildingType || (BuildingType = {}));
-  var buildingTypes = [0];
+  var buildingTypes = [0, 1];
+  var buildingDimensions = {
+    [0]: {
+      width: 1,
+      height: 1
+    },
+    [1]: {
+      width: 2,
+      height: 2
+    }
+  };
   var getDrawableForBuilding = (building, image) => {
     return {
       x: building.x,
@@ -431,7 +442,8 @@
     };
   };
   var buildingImagePaths = {
-    [0]: "./house.png"
+    [0]: "./house.png",
+    [1]: "./house_large.png"
   };
   var loadBuildingImages = async () => {
     let result = {};
@@ -457,13 +469,11 @@
     const tile = getNextCursorAdjacentTile(board, ss, s4);
     const x3 = tile.x;
     const y3 = tile.y;
-    if (gameState.buildings.filter((b3) => b3.x === x3 && b3.y === y3).length === 0) {
-      gameState.buildings.push({
-        x: x3,
-        y: y3,
-        type
-      });
-    }
+    gameState.buildings.push({
+      x: x3,
+      y: y3,
+      type
+    });
   };
 
   // gamestate.ts
@@ -519,7 +529,8 @@
     });
   };
   var draw = (ctx, x3, y3, board, ss, img, direction, alpha) => {
-    const dx = (s3 * (board.width - x3 + y3) + ss.offsetX) * ss.scale;
+    const actualS = img.width / 4 - 4;
+    const dx = (s3 * (board.width - x3 + y3) + ss.offsetX - (actualS - s3) / 2) * ss.scale;
     const dy = ((x3 + y3) * (s3 / 2) - img.height + ss.offsetY) * ss.scale;
     ctx.globalAlpha = alpha;
     ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, dx, dy, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
@@ -567,7 +578,7 @@
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type]));
-              const tileDrawables = [...board.drawables].filter((td) => buildingDrawables.find((bd) => bd.x === td.x && bd.y === td.y) === void 0);
+              const tileDrawables = [...board.drawables];
               const allDrawables = [...tileDrawables, ...buildingDrawables];
               if (screenState.buildMode !== null)
                 allDrawables.push(getBuildingOverlay(board, screenState, s3, buildingImages[screenState.buildMode]));

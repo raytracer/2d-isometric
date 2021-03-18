@@ -63,7 +63,7 @@ const start = async () => {
                     if (ctx) {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const buildingDrawables = gameState.buildings.map(b => getDrawableForBuilding(b, buildingImages[b.type]));
-                        const tileDrawables = [...board.drawables].filter(td => buildingDrawables.find(bd => bd.x === td.x && bd.y === td.y) === undefined);
+                        const tileDrawables = [...board.drawables];
                         const allDrawables = [...tileDrawables, ...buildingDrawables];
                         if (screenState.buildMode !== null) allDrawables.push(getBuildingOverlay(board, screenState, s, buildingImages[screenState.buildMode]));
                         allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => draw(ctx, d.x, d.y, board, screenState, d.image, d.direction, d.alpha));

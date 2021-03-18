@@ -69,9 +69,8 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
 };
 
 export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, img: HTMLImageElement, direction: number, alpha: number) => {
-    //const dx = alpha === 1.0 ? (s * (board.width - x + y) + ss.offsetX) * ss.scale : (s * (board.width - x + y) + ss.offsetX - 2) * ss.scale;
-    //const dy = alpha === 1.0 ? ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale : ((x + y) * (s / 2) - img.height + (s / 2) + ss.offsetY) * ss.scale;
-    const dx = (s * (board.width - x + y) + ss.offsetX) * ss.scale;
+    const actualS = (img.width / 4 - 4);
+    const dx = (s * (board.width - x + y) + ss.offsetX - (actualS - s) / 2) * ss.scale;
     const dy = ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale;
     ctx.globalAlpha = alpha;
     ctx.drawImage(

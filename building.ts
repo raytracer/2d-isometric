@@ -15,17 +15,18 @@ export interface Dimension {
     height: number;
 }
 
-export enum BuildingType { house };
+export enum BuildingType { house, large_block };
 
-export const buildingTypes = [BuildingType.house];
+export const buildingTypes = [BuildingType.house, BuildingType.large_block];
 
-const getDimension = (building: BuildingType): Dimension => {
-    switch (building) {
-        case BuildingType.house:
-            return {
-                width: 1,
-                height: 1
-            }
+export const buildingDimensions: { [key in BuildingType]: Dimension } = {
+    [BuildingType.house]: {
+        width: 1,
+        height: 1
+    },
+    [BuildingType.large_block]: {
+        width: 2,
+        height: 2
     }
 }
 
@@ -40,8 +41,9 @@ export const getDrawableForBuilding = (building: Building, image: HTMLImageEleme
     };
 };
 
-export const buildingImagePaths = {
-    [BuildingType.house]: "./house.png"
+export const buildingImagePaths: { [key in BuildingType]: string } = {
+    [BuildingType.house]: "./house.png",
+    [BuildingType.large_block]: "./house_large.png"
 };
 
 export const loadBuildingImages = async (): Promise<{ [key in BuildingType]: HTMLImageElement }> => {
@@ -74,13 +76,11 @@ export const build = (gameState: GameState, board: Board, ss: ScreenState, s: nu
     const x = tile.x;
     const y = tile.y;
 
-    if (gameState.buildings.filter(b => b.x === x && b.y === y).length === 0) {
-        gameState.buildings.push(
-            {
-                x: x,
-                y: y,
-                type: type
-            }
-        );
-    }
+    gameState.buildings.push(
+        {
+            x: x,
+            y: y,
+            type: type
+        }
+    );
 };
