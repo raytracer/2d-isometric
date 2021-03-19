@@ -35,6 +35,7 @@ export const getDrawableForBuilding = (building: Building, image: HTMLImageEleme
         x: building.x,
         y: building.y,
         z: 0,
+        dimension: buildingDimensions[building.type],
         image: image,
         direction: 3,
         alpha: 1
@@ -56,7 +57,7 @@ export const loadBuildingImages = async (): Promise<{ [key in BuildingType]: HTM
     return result;
 }
 
-export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, image: HTMLImageElement): Drawable => {
+export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, type: BuildingType, image: HTMLImageElement): Drawable => {
     const tile = getNextCursorAdjacentTile(board, ss, s);
     const x = tile.x;
     const y = tile.y;
@@ -64,7 +65,8 @@ export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, ima
     return {
         x: x,
         y: y,
-        z: 0,
+        z: 1,
+        dimension: buildingDimensions[type],
         image: image,
         direction: 3,
         alpha: 0.8

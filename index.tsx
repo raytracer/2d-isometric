@@ -1,7 +1,7 @@
 import { Fragment, h, render } from "preact";
 import { useRef, useEffect } from "preact/hooks";
 import { Board, generateBoard } from "./board";
-import { build, buildingImagePaths, BuildingType, buildingTypes, getBuildingOverlay, getDrawableForBuilding, loadBuildingImages } from "./building";
+import { build, buildingDimensions, buildingImagePaths, BuildingType, buildingTypes, Dimension, getBuildingOverlay, getDrawableForBuilding, loadBuildingImages } from "./building";
 import { GameState, updateState } from "./gamestate";
 import { draw, s, ScreenState, setUpCanvas } from "./screen";
 import { loadImage } from "./util";
@@ -10,6 +10,7 @@ export interface Drawable {
     x: number;
     y: number;
     z: number;
+    dimension: Dimension;
     image: HTMLImageElement;
     direction: number;
     alpha: number;
@@ -63,10 +64,16 @@ const start = async () => {
                     if (ctx) {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const buildingDrawables = gameState.buildings.map(b => getDrawableForBuilding(b, buildingImages[b.type]));
-                        const tileDrawables = [...board.drawables];
+                        let buildings = [...gameState.buildings];
+                        let tileDrawables = [...board.drawables].filter(td => buildings.find(b => {
+                            const d = buildingDimensions[b.type];
+                            return td.x <= b.x && td.x > b.x - d.width && td.y <= b.y && td.y > b.y - d.height;
+                        }) === undefined);
                         const allDrawables = [...tileDrawables, ...buildingDrawables];
-                        if (screenState.buildMode !== null) allDrawables.push(getBuildingOverlay(board, screenState, s, buildingImages[screenState.buildMode]));
-                        allDrawables.sort((a, b) => (a.x + a.y) < (b.x + b.y) ? -1 : 1).forEach(d => draw(ctx, d.x, d.y, board, screenState, d.image, d.direction, d.alpha));
+                        if (screenState.buildMode !== null) allDrawables.push(getBuildingOverlay(board, screenState, s, screenState.buildMode, buildingImages[screenState.buildMode]));
+                        allDrawables.sort((a, b) => {
+                            return (a.x + a.y - a.dimension.height + 1) < (b.x + b.y) ? -1 : 1
+                        }).forEach(d => draw(ctx, d.x, d.y, board, screenState, d.image, d.direction, d.alpha));
                     }
 
                     animationFrameId = requestAnimationFrame(drawBoard);

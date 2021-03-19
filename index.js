@@ -393,6 +393,7 @@
           x: x3,
           y: y3,
           z: 0,
+          dimension: {width: 1, height: 1},
           image: img,
           direction,
           alpha: 1
@@ -436,6 +437,7 @@
       x: building.x,
       y: building.y,
       z: 0,
+      dimension: buildingDimensions[building.type],
       image,
       direction: 3,
       alpha: 1
@@ -452,14 +454,15 @@
     }
     return result;
   };
-  var getBuildingOverlay = (board, ss, s4, image) => {
+  var getBuildingOverlay = (board, ss, s4, type, image) => {
     const tile = getNextCursorAdjacentTile(board, ss, s4);
     const x3 = tile.x;
     const y3 = tile.y;
     return {
       x: x3,
       y: y3,
-      z: 0,
+      z: 1,
+      dimension: buildingDimensions[type],
       image,
       direction: 3,
       alpha: 0.8
@@ -578,11 +581,17 @@
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type]));
-              const tileDrawables = [...board.drawables];
+              let buildings = [...gameState.buildings];
+              let tileDrawables = [...board.drawables].filter((td) => buildings.find((b3) => {
+                const d3 = buildingDimensions[b3.type];
+                return td.x <= b3.x && td.x > b3.x - d3.width && td.y <= b3.y && td.y > b3.y - d3.height;
+              }) === void 0);
               const allDrawables = [...tileDrawables, ...buildingDrawables];
               if (screenState.buildMode !== null)
-                allDrawables.push(getBuildingOverlay(board, screenState, s3, buildingImages[screenState.buildMode]));
-              allDrawables.sort((a3, b3) => a3.x + a3.y < b3.x + b3.y ? -1 : 1).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, d3.image, d3.direction, d3.alpha));
+                allDrawables.push(getBuildingOverlay(board, screenState, s3, screenState.buildMode, buildingImages[screenState.buildMode]));
+              allDrawables.sort((a3, b3) => {
+                return a3.x + a3.y - a3.dimension.height + 1 < b3.x + b3.y ? -1 : 1;
+              }).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, d3.image, d3.direction, d3.alpha));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
           };
