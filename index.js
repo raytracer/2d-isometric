@@ -393,7 +393,8 @@
           x: x3,
           y: y3,
           z: 0,
-          dimension: {width: 1, height: 1},
+          xOffset: 0,
+          yOffset: 0,
           image: img,
           direction,
           alpha: 1
@@ -432,15 +433,16 @@
       height: 2
     }
   };
-  var getDrawableForBuilding = (building, image) => {
+  var getDrawableForBuilding = (building, image, alpha) => {
     return {
       x: building.x,
       y: building.y,
       z: 0,
-      dimension: buildingDimensions[building.type],
+      xOffset: -8,
+      yOffset: -8,
       image,
-      direction: 3,
-      alpha: 1
+      direction: 0,
+      alpha
     };
   };
   var buildingImagePaths = {
@@ -458,15 +460,7 @@
     const tile = getNextCursorAdjacentTile(board, ss, s4);
     const x3 = tile.x;
     const y3 = tile.y;
-    return {
-      x: x3,
-      y: y3,
-      z: 1,
-      dimension: buildingDimensions[type],
-      image,
-      direction: 3,
-      alpha: 0.8
-    };
+    return getDrawableForBuilding({x: x3, y: y3, type}, image, 0.8);
   };
   var build = (gameState, board, ss, s4, type) => {
     const tile = getNextCursorAdjacentTile(board, ss, s4);
@@ -531,12 +525,12 @@
       }
     });
   };
-  var draw = (ctx, x3, y3, board, ss, img, direction, alpha) => {
-    const actualS = img.width / 4 - 4;
-    const dx = (s3 * (board.width - x3 + y3) + ss.offsetX - (actualS - s3) / 2) * ss.scale;
-    const dy = ((x3 + y3) * (s3 / 2) - img.height + ss.offsetY) * ss.scale;
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(img, 2 + img.width / 4 * direction, 2, img.width / 4 - 4, img.height - 4, dx, dy, (img.width / 4 - 4) * ss.scale, (img.height - 4) * ss.scale);
+  var draw = (ctx, board, ss, d3) => {
+    const actualS = d3.image.width / 4 - 4;
+    const dx = (s3 * (board.width - d3.x + d3.y) + ss.offsetX - (actualS - s3) / 2 + d3.xOffset) * ss.scale;
+    const dy = ((d3.x + d3.y) * (s3 / 2) - d3.image.height + ss.offsetY + d3.yOffset) * ss.scale;
+    ctx.globalAlpha = d3.alpha;
+    ctx.drawImage(d3.image, 2 + d3.image.width / 4 * d3.direction, 2, d3.image.width / 4 - 4, d3.image.height - 4, dx, dy, (d3.image.width / 4 - 4) * ss.scale, (d3.image.height - 4) * ss.scale);
     ctx.globalAlpha = 1;
   };
 
@@ -580,18 +574,13 @@
             const ctx = canvas.getContext("2d");
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type]));
-              let buildings = [...gameState.buildings];
-              let tileDrawables = [...board.drawables].filter((td) => buildings.find((b3) => {
-                const d3 = buildingDimensions[b3.type];
-                return td.x <= b3.x && td.x > b3.x - d3.width && td.y <= b3.y && td.y > b3.y - d3.height;
-              }) === void 0);
-              const allDrawables = [...tileDrawables, ...buildingDrawables];
+              const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type], 1));
+              const allDrawables = [...board.drawables, ...buildingDrawables];
               if (screenState.buildMode !== null)
                 allDrawables.push(getBuildingOverlay(board, screenState, s3, screenState.buildMode, buildingImages[screenState.buildMode]));
               allDrawables.sort((a3, b3) => {
-                return a3.x + a3.y - a3.dimension.height + 1 < b3.x + b3.y ? -1 : 1;
-              }).forEach((d3) => draw(ctx, d3.x, d3.y, board, screenState, d3.image, d3.direction, d3.alpha));
+                return a3.x + a3.y + a3.z < b3.x + b3.y + b3.z ? -1 : 1;
+              }).forEach((d3) => draw(ctx, board, screenState, d3));
             }
             animationFrameId = requestAnimationFrame(drawBoard);
           };

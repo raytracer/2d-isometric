@@ -1,3 +1,4 @@
+import { Drawable } from ".";
 import { Board } from "./board";
 import { BuildingType } from "./building";
 
@@ -68,20 +69,20 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
     });
 };
 
-export const draw = (ctx: CanvasRenderingContext2D, x: number, y: number, board: Board, ss: ScreenState, img: HTMLImageElement, direction: number, alpha: number) => {
-    const actualS = (img.width / 4 - 4);
-    const dx = (s * (board.width - x + y) + ss.offsetX - (actualS - s) / 2) * ss.scale;
-    const dy = ((x + y) * (s / 2) - img.height + ss.offsetY) * ss.scale;
-    ctx.globalAlpha = alpha;
+export const draw = (ctx: CanvasRenderingContext2D, board: Board, ss: ScreenState, d: Drawable) => {
+    const actualS = (d.image.width / 4 - 4);
+    const dx = (s * (board.width - d.x + d.y) + ss.offsetX - (actualS - s) / 2 + d.xOffset) * ss.scale;
+    const dy = ((d.x + d.y) * (s / 2) - d.image.height + ss.offsetY + d.yOffset) * ss.scale;
+    ctx.globalAlpha = d.alpha;
     ctx.drawImage(
-        img,
-        2 + (img.width / 4) * direction,
+        d.image,
+        2 + (d.image.width / 4) * d.direction,
         2,
-        img.width / 4 - 4,
-        img.height - 4,
+        d.image.width / 4 - 4,
+        d.image.height - 4,
         dx, dy,
-        (img.width / 4 - 4) * ss.scale,
-        (img.height - 4) * ss.scale
+        (d.image.width / 4 - 4) * ss.scale,
+        (d.image.height - 4) * ss.scale
     );
     ctx.globalAlpha = 1.0;
 }

@@ -30,15 +30,16 @@ export const buildingDimensions: { [key in BuildingType]: Dimension } = {
     }
 }
 
-export const getDrawableForBuilding = (building: Building, image: HTMLImageElement): Drawable => {
+export const getDrawableForBuilding = (building: Building, image: HTMLImageElement, alpha: number): Drawable => {
     return {
         x: building.x,
         y: building.y,
         z: 0,
-        dimension: buildingDimensions[building.type],
-        image: image,
-        direction: 3,
-        alpha: 1
+        xOffset: -8,
+        yOffset: -8,
+        image,
+        direction: 0,
+        alpha
     };
 };
 
@@ -62,15 +63,7 @@ export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, typ
     const x = tile.x;
     const y = tile.y;
 
-    return {
-        x: x,
-        y: y,
-        z: 1,
-        dimension: buildingDimensions[type],
-        image: image,
-        direction: 3,
-        alpha: 0.8
-    };
+    return getDrawableForBuilding({ x, y, type }, image, 0.8);
 }
 
 export const build = (gameState: GameState, board: Board, ss: ScreenState, s: number, type: BuildingType) => {
