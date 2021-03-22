@@ -17,7 +17,17 @@ export const generateBoard = (height: number, width: number, images: Array<HTMLI
             const direction = getRandomInt(4)
             const img = images[choose];
             result.push({
-                x: x, y: y, z: 0, xOffset: 0, yOffset: 0, image: img, direction: direction, alpha: 1.0
+                x: x,
+                y: y,
+                z: 0,
+                xDestOffset: 0,
+                yDestOffset: 0,
+                xSrcOffset: (img.width / 4) * direction + 2,
+                ySrcOffset: 2,
+                width: (img.width / 4) - 4,
+                height: img.height - 4,
+                image: img,
+                alpha: 1.0
             });
         }
     }

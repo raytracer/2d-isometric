@@ -1,7 +1,7 @@
 import { Drawable } from ".";
 import { Board, getNextCursorAdjacentTile } from "./board";
 import { GameState } from "./gamestate";
-import { ScreenState } from "./screen";
+import { s, ScreenState } from "./screen";
 import { loadImage } from "./util";
 
 export interface Building {
@@ -30,17 +30,61 @@ export const buildingDimensions: { [key in BuildingType]: Dimension } = {
     }
 }
 
-export const getDrawableForBuilding = (building: Building, image: HTMLImageElement, alpha: number): Drawable => {
-    return {
-        x: building.x,
-        y: building.y,
-        z: 0,
-        xOffset: -8,
-        yOffset: -8,
-        image,
-        direction: 0,
-        alpha
-    };
+export const getDrawableForBuilding = (building: Building, image: HTMLImageElement, alpha: number): Array<Drawable> => {
+    switch (building.type) {
+        case BuildingType.house:
+            return [{
+                x: building.x,
+                y: building.y,
+                z: 0,
+                xSrcOffset: 2,
+                ySrcOffset: 2,
+                xDestOffset: -8,
+                yDestOffset: -8,
+                height: image.height - 4,
+                width: image.width / 4 - 4,
+                image,
+                alpha
+            }];
+        case BuildingType.large_block:
+            return [{
+                x: building.x,
+                y: building.y,
+                z: 0,
+                xSrcOffset: (image.width / 4 - 4) / 4 + 2,
+                ySrcOffset: 2,
+                xDestOffset: -8,
+                yDestOffset: -8,
+                height: image.height - 4,
+                width: (image.width / 4 - 4) / 2,
+                image,
+                alpha
+            }, {
+                x: building.x - 1,
+                y: building.y,
+                z: 0,
+                xSrcOffset: 3 * (image.width / 4 - 4) / 4 + 2,
+                ySrcOffset: 2,
+                xDestOffset: (image.width / 4 - 4) / 4 - 18,
+                yDestOffset: s / 2 - 8,
+                height: image.height - 4,
+                width: (image.width / 4 - 4) / 4,
+                image,
+                alpha
+            }, {
+                x: building.x,
+                y: building.y - 1,
+                z: 0,
+                xSrcOffset: 2,
+                ySrcOffset: 2,
+                xDestOffset: 2,
+                yDestOffset: s / 2 - 8,
+                height: image.height - 4,
+                width: (image.width / 4 - 4) / 4,
+                image,
+                alpha
+            }];
+    }
 };
 
 export const buildingImagePaths: { [key in BuildingType]: string } = {
@@ -58,7 +102,7 @@ export const loadBuildingImages = async (): Promise<{ [key in BuildingType]: HTM
     return result;
 }
 
-export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, type: BuildingType, image: HTMLImageElement): Drawable => {
+export const getBuildingOverlay = (board: Board, ss: ScreenState, s: number, type: BuildingType, image: HTMLImageElement): Array<Drawable> => {
     const tile = getNextCursorAdjacentTile(board, ss, s);
     const x = tile.x;
     const y = tile.y;

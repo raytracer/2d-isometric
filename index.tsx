@@ -10,10 +10,13 @@ export interface Drawable {
     x: number;
     y: number;
     z: number;
-    xOffset: number;
-    yOffset: number;
+    xDestOffset: number;
+    yDestOffset: number;
+    xSrcOffset: number;
+    ySrcOffset: number;
+    height: number;
+    width: number;
     image: HTMLImageElement;
-    direction: number;
     alpha: number;
 }
 
@@ -64,9 +67,9 @@ const start = async () => {
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        const buildingDrawables = gameState.buildings.map(b => getDrawableForBuilding(b, buildingImages[b.type], 1.0));
-                        const allDrawables = [...board.drawables, ...buildingDrawables];
-                        if (screenState.buildMode !== null) allDrawables.push(getBuildingOverlay(board, screenState, s, screenState.buildMode, buildingImages[screenState.buildMode]));
+                        const buildingDrawables = gameState.buildings.map(b => getDrawableForBuilding(b, buildingImages[b.type], 1.0)).flat();
+                        let allDrawables = [...board.drawables, ...buildingDrawables];
+                        if (screenState.buildMode !== null) allDrawables = [...allDrawables, ...getBuildingOverlay(board, screenState, s, screenState.buildMode, buildingImages[screenState.buildMode])];
                         allDrawables.sort((a, b) => {
                             return (a.x + a.y + a.z) < (b.x + b.y + b.z) ? -1 : 1
                         }).forEach(d => draw(ctx, board, screenState, d));

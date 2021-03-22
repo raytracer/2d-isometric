@@ -393,10 +393,13 @@
           x: x3,
           y: y3,
           z: 0,
-          xOffset: 0,
-          yOffset: 0,
+          xDestOffset: 0,
+          yDestOffset: 0,
+          xSrcOffset: img.width / 4 * direction + 2,
+          ySrcOffset: 2,
+          width: img.width / 4 - 4,
+          height: img.height - 4,
           image: img,
-          direction,
           alpha: 1
         });
       }
@@ -415,68 +418,6 @@
       y: y3
     };
   };
-
-  // building.ts
-  var BuildingType;
-  (function(BuildingType3) {
-    BuildingType3[BuildingType3["house"] = 0] = "house";
-    BuildingType3[BuildingType3["large_block"] = 1] = "large_block";
-  })(BuildingType || (BuildingType = {}));
-  var buildingTypes = [0, 1];
-  var buildingDimensions = {
-    [0]: {
-      width: 1,
-      height: 1
-    },
-    [1]: {
-      width: 2,
-      height: 2
-    }
-  };
-  var getDrawableForBuilding = (building, image, alpha) => {
-    return {
-      x: building.x,
-      y: building.y,
-      z: 0,
-      xOffset: -8,
-      yOffset: -8,
-      image,
-      direction: 0,
-      alpha
-    };
-  };
-  var buildingImagePaths = {
-    [0]: "./house.png",
-    [1]: "./house_large.png"
-  };
-  var loadBuildingImages = async () => {
-    let result = {};
-    for (const [key, value] of Object.entries(buildingImagePaths)) {
-      result[key] = await loadImage(value);
-    }
-    return result;
-  };
-  var getBuildingOverlay = (board, ss, s4, type, image) => {
-    const tile = getNextCursorAdjacentTile(board, ss, s4);
-    const x3 = tile.x;
-    const y3 = tile.y;
-    return getDrawableForBuilding({x: x3, y: y3, type}, image, 0.8);
-  };
-  var build = (gameState, board, ss, s4, type) => {
-    const tile = getNextCursorAdjacentTile(board, ss, s4);
-    const x3 = tile.x;
-    const y3 = tile.y;
-    gameState.buildings.push({
-      x: x3,
-      y: y3,
-      type
-    });
-  };
-
-  // gamestate.ts
-  function updateState(state, timeDelta) {
-    return state;
-  }
 
   // screen.ts
   var s3 = 78;
@@ -526,13 +467,118 @@
     });
   };
   var draw = (ctx, board, ss, d3) => {
-    const actualS = d3.image.width / 4 - 4;
-    const dx = (s3 * (board.width - d3.x + d3.y) + ss.offsetX - (actualS - s3) / 2 + d3.xOffset) * ss.scale;
-    const dy = ((d3.x + d3.y) * (s3 / 2) - d3.image.height + ss.offsetY + d3.yOffset) * ss.scale;
+    const dx = s3 * (board.width - d3.x + d3.y) + ss.offsetX;
+    const dy = (d3.x + d3.y) * (s3 / 2) - d3.image.height + ss.offsetY;
     ctx.globalAlpha = d3.alpha;
-    ctx.drawImage(d3.image, 2 + d3.image.width / 4 * d3.direction, 2, d3.image.width / 4 - 4, d3.image.height - 4, dx, dy, (d3.image.width / 4 - 4) * ss.scale, (d3.image.height - 4) * ss.scale);
+    ctx.drawImage(d3.image, d3.xSrcOffset, d3.ySrcOffset, d3.width, d3.height, (dx + d3.xDestOffset) * ss.scale, (dy + d3.yDestOffset) * ss.scale, d3.width * ss.scale, d3.height * ss.scale);
     ctx.globalAlpha = 1;
   };
+
+  // building.ts
+  var BuildingType;
+  (function(BuildingType3) {
+    BuildingType3[BuildingType3["house"] = 0] = "house";
+    BuildingType3[BuildingType3["large_block"] = 1] = "large_block";
+  })(BuildingType || (BuildingType = {}));
+  var buildingTypes = [0, 1];
+  var buildingDimensions = {
+    [0]: {
+      width: 1,
+      height: 1
+    },
+    [1]: {
+      width: 2,
+      height: 2
+    }
+  };
+  var getDrawableForBuilding = (building, image, alpha) => {
+    switch (building.type) {
+      case 0:
+        return [{
+          x: building.x,
+          y: building.y,
+          z: 0,
+          xSrcOffset: 2,
+          ySrcOffset: 2,
+          xDestOffset: -8,
+          yDestOffset: -8,
+          height: image.height - 4,
+          width: image.width / 4 - 4,
+          image,
+          alpha
+        }];
+      case 1:
+        return [{
+          x: building.x,
+          y: building.y,
+          z: 0,
+          xSrcOffset: (image.width / 4 - 4) / 4 + 2,
+          ySrcOffset: 2,
+          xDestOffset: -8,
+          yDestOffset: -8,
+          height: image.height - 4,
+          width: (image.width / 4 - 4) / 2,
+          image,
+          alpha
+        }, {
+          x: building.x - 1,
+          y: building.y,
+          z: 0,
+          xSrcOffset: 3 * (image.width / 4 - 4) / 4 + 2,
+          ySrcOffset: 2,
+          xDestOffset: (image.width / 4 - 4) / 4 - 18,
+          yDestOffset: s3 / 2 - 8,
+          height: image.height - 4,
+          width: (image.width / 4 - 4) / 4,
+          image,
+          alpha
+        }, {
+          x: building.x,
+          y: building.y - 1,
+          z: 0,
+          xSrcOffset: 2,
+          ySrcOffset: 2,
+          xDestOffset: 2,
+          yDestOffset: s3 / 2 - 8,
+          height: image.height - 4,
+          width: (image.width / 4 - 4) / 4,
+          image,
+          alpha
+        }];
+    }
+  };
+  var buildingImagePaths = {
+    [0]: "./house.png",
+    [1]: "./house_large.png"
+  };
+  var loadBuildingImages = async () => {
+    let result = {};
+    for (const [key, value] of Object.entries(buildingImagePaths)) {
+      result[key] = await loadImage(value);
+    }
+    return result;
+  };
+  var getBuildingOverlay = (board, ss, s4, type, image) => {
+    const tile = getNextCursorAdjacentTile(board, ss, s4);
+    const x3 = tile.x;
+    const y3 = tile.y;
+    return getDrawableForBuilding({x: x3, y: y3, type}, image, 0.8);
+  };
+  var build = (gameState, board, ss, s4, type) => {
+    const tile = getNextCursorAdjacentTile(board, ss, s4);
+    const x3 = tile.x;
+    const y3 = tile.y;
+    gameState.buildings.push({
+      x: x3,
+      y: y3,
+      type
+    });
+  };
+
+  // gamestate.ts
+  function updateState(state, timeDelta) {
+    return state;
+  }
 
   // index.tsx
   var divider = window.navigator.platform.toLowerCase().indexOf("mac") === -1 ? window.devicePixelRatio : 1;
@@ -574,10 +620,10 @@
             const ctx = canvas.getContext("2d");
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type], 1));
-              const allDrawables = [...board.drawables, ...buildingDrawables];
+              const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type], 1)).flat();
+              let allDrawables = [...board.drawables, ...buildingDrawables];
               if (screenState.buildMode !== null)
-                allDrawables.push(getBuildingOverlay(board, screenState, s3, screenState.buildMode, buildingImages[screenState.buildMode]));
+                allDrawables = [...allDrawables, ...getBuildingOverlay(board, screenState, s3, screenState.buildMode, buildingImages[screenState.buildMode])];
               allDrawables.sort((a3, b3) => {
                 return a3.x + a3.y + a3.z < b3.x + b3.y + b3.z ? -1 : 1;
               }).forEach((d3) => draw(ctx, board, screenState, d3));

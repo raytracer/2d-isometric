@@ -70,19 +70,18 @@ export const setUpCanvas = (canvas: HTMLCanvasElement, ss: ScreenState) => {
 };
 
 export const draw = (ctx: CanvasRenderingContext2D, board: Board, ss: ScreenState, d: Drawable) => {
-    const actualS = (d.image.width / 4 - 4);
-    const dx = (s * (board.width - d.x + d.y) + ss.offsetX - (actualS - s) / 2 + d.xOffset) * ss.scale;
-    const dy = ((d.x + d.y) * (s / 2) - d.image.height + ss.offsetY + d.yOffset) * ss.scale;
+    const dx = s * (board.width - d.x + d.y) + ss.offsetX;
+    const dy = (d.x + d.y) * (s / 2) - d.image.height + ss.offsetY;
     ctx.globalAlpha = d.alpha;
     ctx.drawImage(
         d.image,
-        2 + (d.image.width / 4) * d.direction,
-        2,
-        d.image.width / 4 - 4,
-        d.image.height - 4,
-        dx, dy,
-        (d.image.width / 4 - 4) * ss.scale,
-        (d.image.height - 4) * ss.scale
+        d.xSrcOffset,
+        d.ySrcOffset,
+        d.width,
+        d.height,
+        (dx + d.xDestOffset) * ss.scale, (dy + d.yDestOffset) * ss.scale,
+        (d.width) * ss.scale,
+        (d.height) * ss.scale
     );
     ctx.globalAlpha = 1.0;
 }
