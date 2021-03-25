@@ -382,29 +382,59 @@
   };
 
   // board.ts
+  var TileType;
+  (function(TileType2) {
+    TileType2[TileType2["grass"] = 0] = "grass";
+    TileType2[TileType2["flowers"] = 1] = "flowers";
+    TileType2[TileType2["dirt"] = 2] = "dirt";
+  })(TileType || (TileType = {}));
+  var tileTypes = [0, 1, 2];
+  var tileImagePaths = {
+    [0]: "./grass.png",
+    [1]: "./flowers.png",
+    [2]: "./dirt.png"
+  };
+  var loadTileImages = async () => {
+    let result = {};
+    for (const [key, value] of Object.entries(tileImagePaths)) {
+      result[key] = await loadImage(value);
+    }
+    return result;
+  };
+  var getDrawableForTile = (tile, img) => {
+    return {
+      x: tile.x,
+      y: tile.y,
+      z: 0,
+      xDestOffset: 0,
+      yDestOffset: 0,
+      xSrcOffset: img.width / 4 * tile.offset + 2,
+      ySrcOffset: 2,
+      width: img.width / 4 - 4,
+      height: img.height - 4,
+      image: img,
+      alpha: 1
+    };
+  };
   var generateBoard = (height, width, images) => {
-    const result = [];
+    const tiles = [];
     for (let x3 = 0; x3 < width; x3++) {
       for (let y3 = 0; y3 < height; y3++) {
-        const choose = getRandomInt(images.length);
+        const choose = getRandomInt(tileTypes.length);
         const direction = getRandomInt(4);
-        const img = images[choose];
-        result.push({
+        tiles.push({
           x: x3,
           y: y3,
-          z: 0,
-          xDestOffset: 0,
-          yDestOffset: 0,
-          xSrcOffset: img.width / 4 * direction + 2,
-          ySrcOffset: 2,
-          width: img.width / 4 - 4,
-          height: img.height - 4,
-          image: img,
-          alpha: 1
+          type: tileTypes[choose],
+          offset: direction
         });
       }
     }
-    return result;
+    return {
+      width,
+      height,
+      tiles
+    };
   };
   var getNextCursorAdjacentTile = (board, ss, s4) => {
     let ox = (-board.width * s4 - ss.offsetX - s4) / 2;
@@ -568,6 +598,14 @@
     const tile = getNextCursorAdjacentTile(board, ss, s4);
     const x3 = tile.x;
     const y3 = tile.y;
+    for (let i3 = x3; i3 > x3 - buildingDimensions[type].width; i3--) {
+      for (let j3 = y3; j3 > y3 - buildingDimensions[type].height; j3--) {
+        const tile2 = board.tiles.find((t3) => t3.x === i3 && t3.y === j3);
+        if (tile2) {
+          tile2.type = TileType.dirt;
+        }
+      }
+    }
     gameState.buildings.push({
       x: x3,
       y: y3,
@@ -595,13 +633,10 @@
   var start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const buildingImages = await loadBuildingImages();
+    const tileImages = await loadTileImages();
     const width = 12;
     const height = 12;
-    let board = {
-      width,
-      height,
-      drawables: generateBoard(height, width, images)
-    };
+    let board = generateBoard(height, width, images);
     function Isometric(props) {
       const canvasRef = s2(null);
       let gameState = {buildings: []};
@@ -621,7 +656,7 @@
             if (ctx) {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               const buildingDrawables = gameState.buildings.map((b3) => getDrawableForBuilding(b3, buildingImages[b3.type], 1)).flat();
-              let allDrawables = [...board.drawables, ...buildingDrawables];
+              let allDrawables = [...board.tiles.map((t3) => getDrawableForTile(t3, tileImages[t3.type])).flat(), ...buildingDrawables];
               if (screenState.buildMode !== null)
                 allDrawables = [...allDrawables, ...getBuildingOverlay(board, screenState, s3, screenState.buildMode, buildingImages[screenState.buildMode])];
               allDrawables.sort((a3, b3) => {
