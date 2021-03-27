@@ -384,15 +384,23 @@
   // board.ts
   var TileType;
   (function(TileType2) {
-    TileType2[TileType2["grass"] = 0] = "grass";
-    TileType2[TileType2["flowers"] = 1] = "flowers";
-    TileType2[TileType2["dirt"] = 2] = "dirt";
+    TileType2[TileType2["ground"] = 0] = "ground";
+    TileType2[TileType2["grass"] = 1] = "grass";
+    TileType2[TileType2["flowers"] = 2] = "flowers";
+    TileType2[TileType2["dirt"] = 3] = "dirt";
+    TileType2[TileType2["sea"] = 4] = "sea";
+    TileType2[TileType2["coast"] = 5] = "coast";
+    TileType2[TileType2["coast_corner"] = 6] = "coast_corner";
   })(TileType || (TileType = {}));
-  var tileTypes = [0, 1, 2];
+  var tileTypes = [0, 1, 2, 3, 4, 5, 6];
   var tileImagePaths = {
-    [0]: "./grass.png",
-    [1]: "./flowers.png",
-    [2]: "./dirt.png"
+    [0]: "./ground.png",
+    [1]: "./grass.png",
+    [2]: "./flowers.png",
+    [3]: "./dirt.png",
+    [4]: "./sea.png",
+    [5]: "./coast.png",
+    [6]: "./coast_corner.png"
   };
   var loadTileImages = async () => {
     let result = {};
@@ -402,25 +410,47 @@
     return result;
   };
   var getDrawableForTile = (tile, img) => {
-    return {
-      x: tile.x,
-      y: tile.y,
-      z: 0,
-      xDestOffset: 0,
-      yDestOffset: 0,
-      xSrcOffset: img.width / 4 * tile.offset + 2,
-      ySrcOffset: 2,
-      width: img.width / 4 - 4,
-      height: img.height - 4,
-      image: img,
-      alpha: 1
-    };
+    switch (tile.type) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        return {
+          x: tile.x,
+          y: tile.y,
+          z: 0,
+          xDestOffset: 0,
+          yDestOffset: 0,
+          xSrcOffset: img.width / 4 * tile.offset + 2,
+          ySrcOffset: 2,
+          width: img.width / 4 - 4,
+          height: img.height - 4,
+          image: img,
+          alpha: 1
+        };
+      case 4:
+      case 5:
+      case 6:
+        return {
+          x: tile.x,
+          y: tile.y,
+          z: 0,
+          xDestOffset: 0,
+          yDestOffset: 17,
+          xSrcOffset: img.width / 4 * tile.offset + 2,
+          ySrcOffset: 2,
+          width: img.width / 4 - 4,
+          height: img.height - 4,
+          image: img,
+          alpha: 1
+        };
+    }
   };
   var generateBoard = (height, width, images) => {
     const tiles = [];
-    for (let x3 = 0; x3 < width; x3++) {
-      for (let y3 = 0; y3 < height; y3++) {
-        const choose = getRandomInt(tileTypes.length);
+    for (let x3 = 2; x3 < width - 2; x3++) {
+      for (let y3 = 2; y3 < height - 2; y3++) {
+        const choose = getRandomInt(4);
         const direction = getRandomInt(4);
         tiles.push({
           x: x3,
@@ -430,6 +460,86 @@
         });
       }
     }
+    for (let y3 = 0; y3 < height; y3++) {
+      tiles.push({
+        x: 0,
+        y: y3,
+        type: 4,
+        offset: 0
+      });
+      tiles.push({
+        x: width - 1,
+        y: y3,
+        type: 4,
+        offset: 0
+      });
+    }
+    for (let x3 = 1; x3 < width - 1; x3++) {
+      tiles.push({
+        x: x3,
+        y: 0,
+        type: 4,
+        offset: 0
+      });
+      tiles.push({
+        x: x3,
+        y: height - 1,
+        type: 4,
+        offset: 0
+      });
+    }
+    for (let x3 = 2; x3 < width - 2; x3++) {
+      tiles.push({
+        x: x3,
+        y: 1,
+        type: 5,
+        offset: 3
+      });
+      tiles.push({
+        x: x3,
+        y: height - 2,
+        type: 5,
+        offset: 1
+      });
+    }
+    for (let y3 = 2; y3 < height - 2; y3++) {
+      tiles.push({
+        x: 1,
+        y: y3,
+        type: 5,
+        offset: 2
+      });
+      tiles.push({
+        x: width - 2,
+        y: y3,
+        type: 5,
+        offset: 0
+      });
+    }
+    tiles.push({
+      x: 1,
+      y: 1,
+      type: 6,
+      offset: 2
+    });
+    tiles.push({
+      x: width - 2,
+      y: 1,
+      type: 6,
+      offset: 3
+    });
+    tiles.push({
+      x: 1,
+      y: height - 2,
+      type: 6,
+      offset: 1
+    });
+    tiles.push({
+      x: width - 2,
+      y: height - 2,
+      type: 6,
+      offset: 0
+    });
     return {
       width,
       height,
@@ -602,7 +712,7 @@
       for (let j3 = y3; j3 > y3 - buildingDimensions[type].height; j3--) {
         const tile2 = board.tiles.find((t3) => t3.x === i3 && t3.y === j3);
         if (tile2) {
-          tile2.type = TileType.dirt;
+          tile2.type = TileType.ground;
         }
       }
     }

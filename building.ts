@@ -119,7 +119,7 @@ export const build = (gameState: GameState, board: Board, ss: ScreenState, s: nu
         for (let j = y; j > y - buildingDimensions[type].height; j--) {
             const tile = board.tiles.find(t => t.x === i && t.y === j);
             if (tile) {
-                tile.type = TileType.dirt;
+                tile.type = TileType.ground;
             }
         }
     }
