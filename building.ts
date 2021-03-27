@@ -1,5 +1,5 @@
 import { Drawable } from ".";
-import { Board, getNextCursorAdjacentTile } from "./board";
+import { Board, getNextCursorAdjacentTile, TileType } from "./board";
 import { GameState } from "./gamestate";
 import { s, ScreenState } from "./screen";
 import { loadImage } from "./util";
@@ -114,6 +114,15 @@ export const build = (gameState: GameState, board: Board, ss: ScreenState, s: nu
     const tile = getNextCursorAdjacentTile(board, ss, s);
     const x = tile.x;
     const y = tile.y;
+
+    for (let i = x; i > x - buildingDimensions[type].width; i--) {
+        for (let j = y; j > y - buildingDimensions[type].height; j--) {
+            const tile = board.tiles.find(t => t.x === i && t.y === j);
+            if (tile) {
+                tile.type = TileType.dirt;
+            }
+        }
+    }
 
     gameState.buildings.push(
         {

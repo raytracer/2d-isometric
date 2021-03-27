@@ -1,6 +1,6 @@
 import { Fragment, h, render } from "preact";
 import { useRef, useEffect } from "preact/hooks";
-import { Board, generateBoard } from "./board";
+import { Board, generateBoard, getDrawableForTile, loadTileImages } from "./board";
 import { build, buildingDimensions, buildingImagePaths, BuildingType, buildingTypes, Dimension, getBuildingOverlay, getDrawableForBuilding, loadBuildingImages } from "./building";
 import { GameState, updateState } from "./gamestate";
 import { draw, s, ScreenState, setUpCanvas } from "./screen";
@@ -36,15 +36,12 @@ const screenState: ScreenState = {
 const start = async () => {
     const images = [await loadImage("./grass.png"), await loadImage("./flowers.png"), await loadImage("./dirt.png")];
     const buildingImages = await loadBuildingImages();
+    const tileImages = await loadTileImages();
     const width = 12;
     const height = 12;
 
 
-    let board: Board = {
-        width: width,
-        height: height,
-        drawables: generateBoard(height, width, images)
-    }
+    let board: Board = generateBoard(height, width, images);
 
     function Isometric(props: any) {
         const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,7 +65,7 @@ const start = async () => {
                     if (ctx) {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const buildingDrawables = gameState.buildings.map(b => getDrawableForBuilding(b, buildingImages[b.type], 1.0)).flat();
-                        let allDrawables = [...board.drawables, ...buildingDrawables];
+                        let allDrawables = [...board.tiles.map(t => getDrawableForTile(t, tileImages[t.type])).flat(), ...buildingDrawables];
                         if (screenState.buildMode !== null) allDrawables = [...allDrawables, ...getBuildingOverlay(board, screenState, s, screenState.buildMode, buildingImages[screenState.buildMode])];
                         allDrawables.sort((a, b) => {
                             return (a.x + a.y + a.z) < (b.x + b.y + b.z) ? -1 : 1
